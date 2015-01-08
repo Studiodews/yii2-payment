@@ -8,7 +8,8 @@ use yii\payment\models\Payment;
 
 class Module extends \yii\base\Module{
 
-	//支付方式
+	public $defaultRoute = 'method';
+
 	public $methods = [];
 
 
