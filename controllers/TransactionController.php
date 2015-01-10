@@ -3,6 +3,7 @@
 namespace yii\payment\controllers;
 
 use Yii;
+use yii\base\ErrorException;
 use yii\web\Controller;
 
 class TransactionController extends Controller{
@@ -10,19 +11,17 @@ class TransactionController extends Controller{
 	public $defaultAction = 'pay';
 
 	public function actionPay($id){
-		return $this->run($this->module->manager->getPayment($id)->mode, [
-			'id' => $id,
-		]);
-	}
+		$manager = $this->module->manager;
+		$mode = $manager->getMode($id);
 
-	public function actionAlipay($id){
-		if($this->module->manager->disabledMode('alipay')){
-			echo 'disabled';
-			return false;
+		if($manager->disabledMode($mode)){
+			throw new ErrorException('Payment has been disabled');
 		}
 
-		$payment = $this->module->manager->getPayment($id);
-		
+		$urlManager = Yii::$app->urlManager;
+		$callbackRoute = DIRECTORY_SEPARATOR . $this->module->id . DIRECTORY_SEPARATOR . $mode . DIRECTORY_SEPARATOR;
+
+		return $this->redirect($manager->getPayUrl($id, $urlManager->createAbsoluteUrl($callbackRoute . 'async'), $urlManager->createAbsoluteUrl($callbackRoute . 'sync')));
 	}
 
 }
