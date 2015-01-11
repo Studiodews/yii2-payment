@@ -18,6 +18,9 @@ use yii\payment\apis\Alipay;
 
 class Manager{
 
+	//认证密钥
+	public $hashkey = false;
+
 	//配置支付方式
 	public $modes = [];
 
@@ -31,18 +34,37 @@ class Manager{
 	 * @param {number} $id 支付记录id
 	 * @param {string} $async 异步通知地址
 	 * @param {string} $sync 同步通知地址
+	 * @param {string} $hash hash加密串
 	 * @return {none}
-	 * @example Yii::$app->payment->getPayUrl($id, $async, $sync);
+	 * @example Yii::$app->payment->getPayUrl($id, $async, $sync, $hash);
 	 */
-	public function getPayUrl($id, $async, $sync){
+	public function getPayUrl($id, $async, $sync, $hash = null){
 		$payment = $this->getPayment($id);
-		switch($payment->mode){
-			case 'alipay':
-				return $this->alipayPayUrl($async, $sync);
-				break;
+		
+		if($this->hashkey === false || $payment->validateData($id, $hash, $this->hashkey)){
+			switch($payment->mode){
+				case 'alipay':
+					return $this->alipayPayUrl($async, $sync);
+					break;
+			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * 获取hash加密串
+	 * @method getPaymentHash
+	 * @since 0.0.1
+	 * @param {number} [$id] 支付记录id
+	 * @return {string}
+	 */
+	public function getPaymentHash($id = null){
+		if($id){
+			$this->getPayment($id);
+		}
+
+		return $this->payment === false ? '' : $this->payment->generateDataHash($this->hashkey);
 	}
 
 	/**
@@ -56,6 +78,16 @@ class Manager{
 	private function alipayPayUrl($async, $sync){
 		$alipay = new Alipay($this->modes['alipay']);
 		return $alipay->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
+	}
+
+	/**
+	 * 获取当前支付记录id
+	 * @method getId
+	 * @since 0.0.1
+	 * @return {number}
+	 */
+	public function getId(){
+		return $this->payment->id;
 	}
 
 	/**
@@ -97,7 +129,7 @@ class Manager{
 		$this->payment->mode = $mode;
 		$this->payment->save();
 
-		return $this->payment->save() ? $this->payment->id : 0;
+		return $this;
 	}
 
 	/**
