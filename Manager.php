@@ -168,7 +168,7 @@ class Manager{
 	 * @return {number}
 	 */
 	private function createId(){
-		return $this->id_pre . time() . mt_rand(1000, 9999);
+		return $this->idpre . time() . mt_rand(1000, 9999);
 	}
 
 	/**
