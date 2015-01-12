@@ -13,8 +13,11 @@ class Module extends \yii\base\Module{
 
 	public $manager;
 
-	//结果显示页route路径
-	public $resultRoute;
+	//异步通知内部调用路由
+	public $asyncRoute;
+
+	//同步通知内部调用路由
+	public $syncRoute;
 
 	public function init(){
 		parent::init();

@@ -44,6 +44,41 @@ class Alipay{
 	}
 
 	/**
+	 * 获取类对象
+	 * @method sdk
+	 * @since 0.0.1
+	 * @param {array} $config 参数数组
+	 * @return {none}
+	 * @example Alipay::sdk($config);
+	 */
+	public static function sdk($config){
+		return new static($config);
+	}
+
+	/**
+	 * 验证签名
+	 * @method verifySign
+	 * @since 0.0.1
+	 * @param {boolean} [$async=false] 是否为异步通知
+	 * @return {boolean}
+	 * @example Alipay::sdk($config)->verifySign($async);
+	 */
+	public function verifySign($async = false){
+		$data = $async ? Yii::$app->request->post() : Yii::$app->request->get();
+
+		if(empty($data)){
+			return false;
+		}
+
+		$sign = $data['sign'];
+
+		$data['sign'] = null;
+		$data['sign_type'] = null;
+
+		return Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrSort($data))));
+	}
+
+	/**
 	 * 获取支付链接
 	 * @method getPayUrl
 	 * @since 0.0.1
@@ -53,6 +88,7 @@ class Alipay{
 	 * @param {string} $body 订单描述
 	 * @param {string} $show_url 商品展示地址
 	 * @return {string}
+	 * @example Alipay::sdk($config)->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url);
 	 */
 	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null){
 		return $this->buildRequest(array_merge([
@@ -77,7 +113,8 @@ class Alipay{
 	 */
 	private function buildRequest($params){
 		$querystring = $this->getQeuryString($this->arrSort($params));
-		return $this->api . $querystring . '&sign=' . md5($querystring . $this->config['key']) . '&sign_type=' . $this->sign_type;
+
+		return $this->api . $querystring . '&sign=' . $this->sign($querystring) . '&sign_type=' . $this->sign_type;
 	}
 
 	/**
@@ -91,9 +128,10 @@ class Alipay{
 		$sign = '';
 		switch($this->sign_type){
 			case 'MD5':
-				$sign = md5($querystring . $this->config['key']);
+				$sign = md5($string . $this->config['key']);
 				break;
 		}
+
 		return $sign;
 	}
 
@@ -118,6 +156,7 @@ class Alipay{
 	private function arrSort($arr){
 		ksort($arr);
 		reset($arr);
+
 		return $arr;
 	}
 

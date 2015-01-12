@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/1/10
+ * update: 2015/1/12
  * version: 0.0.1
  */
 
@@ -26,6 +26,18 @@ class Manager{
 
 	//交易记录
 	private $payment = false;
+
+	/**
+	 * 进行支付
+	 * @method verifySign
+	 * @since 0.0.1
+	 * @param {boolean} [$async=false] 是否为异步通知
+	 * @return {boolean}
+	 * @example Yii::$app->payment->verifySign($async);
+	 */
+	public function verifySign($async = false){
+		return Alipay::sdk($this->modes['alipay'])->verifySign($async);
+	}
 
 	/**
 	 * 进行支付
@@ -76,8 +88,7 @@ class Manager{
 	 * @return {none}
 	 */
 	private function alipayPayUrl($async, $sync){
-		$alipay = new Alipay($this->modes['alipay']);
-		return $alipay->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
+		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
 	}
 
 	/**
@@ -97,9 +108,9 @@ class Manager{
 	 * @param {number} $oid 订单id
 	 * @param {number} $amount 交易总额(分)
 	 * @param {string} $mode 支付方式
-	 * @param {string} [$title] 订单名称
-	 * @param {string} [$description] 描述信息
-	 * @param {string} [$url] 商品展示url
+	 * @param {string} [$title=null] 订单名称
+	 * @param {string} [$description=null] 描述信息
+	 * @param {string} [$url=null] 商品展示url
 	 * @return {number}
 	 * @example Yii::$app->payment->create($oid, $amount, $mode, $title, $description, $url);
 	 */
