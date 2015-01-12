@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/1/10
+ * update: 2015/1/13
  * version: 0.0.1
  */
 
@@ -18,6 +18,12 @@ class Alipay{
 	//支付宝网关
 	private $api = 'https://mapi.alipay.com/gateway.do?';
 
+	//https形式消息验证地址
+	private $https_verify_url = 'https://mapi.alipay.com/gateway.do?service=notify_verify&';
+
+	//http形式消息验证地址
+	private $http_verify_url = 'http://notify.alipay.com/trade/notify_query.do?';
+
 	//即时到账交易接口参数
 	private $params = [
 		'service' => 'create_direct_pay_by_user',	//服务名称
@@ -27,7 +33,11 @@ class Alipay{
 		'_input_charset' => 'utf-8',	//字符编码格式
 	];
 
+	//验证方式
 	private $sign_type = 'MD5';
+
+	//ssl证书名
+	private $pem = 'Alipay.pem';
 
 	//配置参数
 	private $config;
@@ -66,7 +76,11 @@ class Alipay{
 	public function verifySign($async = false){
 		$data = $async ? Yii::$app->request->post() : Yii::$app->request->get();
 
-		if(empty($data)){
+		$file = fopen(Yii::getAlias('@webroot/assets') . '/alipay.txt', 'a+');
+		fwrite($file, print_r($data, true));
+		fclose($file);
+
+		if(empty($data) || !array_key_exists('sign', $data) ||  !array_key_exists('notify_id', $data)){
 			return false;
 		}
 
@@ -75,7 +89,43 @@ class Alipay{
 		$data['sign'] = null;
 		$data['sign_type'] = null;
 
-		return Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrSort($data))));
+		return Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrSort($data)))) && $this->verifyNotify($data['notify_id']);
+	}
+
+	/**
+	 * 消息验证
+	 * @method verifyNotify
+	 * @since 0.0.1
+	 * @param {string} $notify_id 是否为异步通知
+	 * @return {boolean}
+	 */
+	private function verifyNotify($notify_id){
+		$verify_url = Yii::$app->request->getIsSecureConnection() ? $this->https_verify_url : $this->http_verify_url;
+		$verify_url .=  'partner=' . $this->config['partner'] . '&notify_id=' . $notify_id;
+		$result = $this->getHttpResponseGET($verify_url, __DIR__ . DIRECTORY_SEPARATOR . $this->pem);
+		
+		return preg_match("/true$/i", $result);
+	}
+
+	/**
+	 * 远程获取数据，GET模式
+	 * @method getHttpResponseGET
+	 * @since 0.0.1
+	 * @param {string} $url 指定URL完整路径地址
+	 * @param {string} $cacert_url 指定ssl证书绝对路径
+	 * @return {string}
+	 */
+	private function getHttpResponseGET($url, $cacert_url) {
+		$curl = curl_init($url);
+		curl_setopt($curl, CURLOPT_HEADER, 0);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+		curl_setopt($curl, CURLOPT_CAINFO, $cacert_url);
+		$responseText = curl_exec($curl);
+		curl_close($curl);
+
+		return $responseText;
 	}
 
 	/**

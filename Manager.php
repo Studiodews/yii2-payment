@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/1/12
+ * update: 2015/1/13
  * version: 0.0.1
  */
 
@@ -24,8 +24,25 @@ class Manager{
 	//配置支付方式
 	public $modes = [];
 
+	//支付记录id前缀, 最高4位纯数字, 默认1000
+	public $id_pre = 1000;
+
 	//交易记录
 	private $payment = false;
+
+	/**
+	 * 完成支付
+	 * @method complete
+	 * @since 0.0.1
+	 * @param {number} $id 支付记录id
+	 * @return {none}
+	 * @example Yii::$app->payment->complete($id);
+	 */
+	public function complete($id){
+		$payment = $this->getPayment($id);
+		$payment->completed_at = time();
+		$payment->save();
+	}
 
 	/**
 	 * 进行支付
@@ -123,7 +140,7 @@ class Manager{
 			throw new ErrorException('Payment amount must be a positive integer');
 		}
 
-		if(!isset($this->modes[$mode])){
+		if(!array_key_exists($mode, $this->modes)){
 			throw new ErrorException('Unsupported payment mode');
 		}
 
@@ -132,6 +149,7 @@ class Manager{
 		}
 
 		$this->payment = new Payment;
+		$this->payment->id = $this->createId();
 		$this->payment->oid = $oid;
 		$this->payment->title = $title ? $title : Yii::$app->name;
 		$this->payment->amount = $amount;
@@ -141,6 +159,16 @@ class Manager{
 		$this->payment->save();
 
 		return $this;
+	}
+
+	/**
+	 * 创建支付记录id
+	 * @method createId
+	 * @since 0.0.1
+	 * @return {number}
+	 */
+	private function createId(){
+		return $this->id_pre . time() . mt_rand(1000, 9999);
 	}
 
 	/**
