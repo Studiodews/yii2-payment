@@ -18,14 +18,14 @@ use yii\payment\apis\Alipay;
 
 class Manager{
 
+	//支付记录id前缀, 最高4位纯数字, 默认1000
+	public $idpre = 1000;
+
 	//认证密钥
 	public $hashkey = false;
 
 	//配置支付方式
 	public $modes = [];
-
-	//支付记录id前缀, 最高4位纯数字, 默认1000
-	public $id_pre = 1000;
 
 	//交易记录
 	private $payment = false;
