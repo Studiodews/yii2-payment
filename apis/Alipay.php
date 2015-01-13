@@ -74,11 +74,13 @@ class Alipay{
 	 * @example Alipay::sdk($config)->verifySign($async);
 	 */
 	public function verifySign($async = false){
-		$data = $async ? Yii::$app->request->post() : Yii::$app->request->get();
+		$data = $async ? $_POST : $_GET;
 
+		/*
 		$file = fopen(Yii::getAlias('@webroot/assets') . '/alipay.txt', 'a+');
 		fwrite($file, print_r($data, true));
 		fclose($file);
+		*/
 
 		if(empty($data) || !array_key_exists('sign', $data) ||  !array_key_exists('notify_id', $data)){
 			return false;

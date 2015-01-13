@@ -28,9 +28,10 @@ class AlipayController extends Controller{
 		}
 
 		if($this->checkTradeStatus(Yii::$app->request->post('trade_status'))){
+			$id = Yii::$app->request->post('out_trade_no');
 			$this->module->manager->complete($id);
 			if($this->module->asyncRoute){
-				$this->run($this->module->asyncRoute, ['id' => Yii::$app->request->post('out_trade_no')]);
+				$this->run($this->module->asyncRoute, ['id' => $id]);
 			}
 		}
 
