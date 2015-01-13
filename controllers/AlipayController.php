@@ -10,6 +10,8 @@ class AlipayController extends Controller{
 
 	public $enableCsrfValidation = false;
 
+	private $mode = 'alipay';
+
 	public function behaviors(){
 		return [
 			'verbs' => [
@@ -23,13 +25,22 @@ class AlipayController extends Controller{
 	}
 
 	public function actionAsync(){
-		if(!$this->module->manager->verifySign(true)){
-			return 'fail';
+		if(!array_key_exists('out_trade_no', $_POST) || !array_key_exists('trade_no', $_POST) || !array_key_exists('trade_status', $_POST)){
+			return false;
 		}
 
-		if($this->checkTradeStatus(Yii::$app->request->post('trade_status'))){
-			$id = Yii::$app->request->post('out_trade_no');
-			$this->module->manager->complete($id);
+		$id = $_POST['out_trade_no'];
+		$tid = $_POST['trade_no'];
+		$status = $this->checkTradeStatus($_POST['trade_status']) ? 1 : 0;
+		$manager = $this->module->manager;
+		$manager->saveNotify($this->mode, $tid, $id, $status, $_POST);
+
+		if(!$manager->verifySign(true)){
+			return false;
+		}
+
+		if($status){
+			$manager->complete($id, $tid);
 			if($this->module->asyncRoute){
 				$this->run($this->module->asyncRoute, ['id' => $id]);
 			}
