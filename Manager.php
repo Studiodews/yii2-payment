@@ -15,7 +15,7 @@ use Yii;
 use yii\base\ErrorException;
 use yii\helpers\Json;
 use yii\payment\models\Payment;
-use yii\payment\models\PaymentNofity;
+use yii\payment\models\PaymentNotify;
 use yii\payment\apis\Alipay;
 
 class Manager{
@@ -37,20 +37,22 @@ class Manager{
 	 * @method complete
 	 * @since 0.0.1
 	 * @param {string} $mode 第三方支付端流水号
-	 * @param {number} $tid 第三方支付端流水号
 	 * @param {number} $pid 支付记录id
+	 * @param {number} $tid 第三方支付端流水号
+	 * @param {boolean} $status 支付结果状态
+	 * @param {string} $data 消息通知数据
 	 * @return {none}
-	 * @example Yii::$app->payment->saveNotify($mode, $tid, $pid);
+	 * @example Yii::$app->payment->saveNotify($mode, $pid, $tid, $status, $data);
 	 */
-	public function saveNotify($mode, $tid, $pid, $status, $data){
-		$notify = new PaymentNofity;
+	public function saveNotify($mode, $pid, $tid, $status, $data){
+		$notify = new PaymentNotify;
 		$notify->mode = $mode;
-		$notify->tid = $tid;
 		$notify->pid = $pid;
+		$notify->tid = $tid;
 		$notify->status = $status;
 		$notify->data = Json::encode($data);
 		$notify->created_at = time();
-		$notify->save();
+		echo $notify->save();
 	}
 
 	/**

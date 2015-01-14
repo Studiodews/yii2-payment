@@ -12,6 +12,7 @@ class AlipayController extends Controller{
 
 	private $mode = 'alipay';
 
+	/*
 	public function behaviors(){
 		return [
 			'verbs' => [
@@ -23,6 +24,7 @@ class AlipayController extends Controller{
 			],
 		];
 	}
+	*/
 
 	public function actionAsync(){
 		if(!array_key_exists('out_trade_no', $_POST) || !array_key_exists('trade_no', $_POST) || !array_key_exists('trade_status', $_POST)){
@@ -33,7 +35,7 @@ class AlipayController extends Controller{
 		$tid = $_POST['trade_no'];
 		$status = $this->checkTradeStatus($_POST['trade_status']) ? 1 : 0;
 		$manager = $this->module->manager;
-		$manager->saveNotify($this->mode, $tid, $id, $status, $_POST);
+		$manager->saveNotify($this->mode, $id, $tid, $status, $_POST);
 
 		if(!$manager->verifySign(true)){
 			return false;
@@ -56,8 +58,7 @@ class AlipayController extends Controller{
 
 		$request = Yii::$app->request;
 		if($this->checkTradeStatus($request->get('trade_status'))){
-			//return $this->module->syncRoute ? $this->redirect($this->module->syncRoute, ['id' => $request->get('out_trade_no')]) : '付款成功';
-			return '付款成功';
+			return $this->module->syncRoute ? $this->redirect($this->module->syncRoute, ['id' => $request->get('out_trade_no')]) : '付款成功';
 		}
 
 		return '验证成功';
