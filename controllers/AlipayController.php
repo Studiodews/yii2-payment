@@ -12,7 +12,6 @@ class AlipayController extends Controller{
 
 	private $mode = 'alipay';
 
-	/*
 	public function behaviors(){
 		return [
 			'verbs' => [
@@ -24,7 +23,6 @@ class AlipayController extends Controller{
 			],
 		];
 	}
-	*/
 
 	public function actionAsync(){
 		if(!array_key_exists('out_trade_no', $_POST) || !array_key_exists('trade_no', $_POST) || !array_key_exists('trade_status', $_POST)){
@@ -41,11 +39,8 @@ class AlipayController extends Controller{
 			return false;
 		}
 
-		if($status){
-			$manager->complete($id, $tid);
-			if($this->module->asyncRoute){
-				$this->run($this->module->asyncRoute, ['id' => $id]);
-			}
+		if($status && $manager->complete($id, $tid) && $this->module->asyncRoute){
+			$this->run($this->module->asyncRoute, ['id' => $id]);
 		}
 
 		return 'success';

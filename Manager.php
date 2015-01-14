@@ -66,9 +66,14 @@ class Manager{
 	 */
 	public function complete($id, $tid){
 		$payment = $this->getPayment($id);
+		if($payment->completed_at > 0){
+			return false;
+		}
 		$payment->tid = $tid;
 		$payment->completed_at = time();
 		$payment->save();
+		
+		return true;
 	}
 
 	/**
