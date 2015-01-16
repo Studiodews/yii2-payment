@@ -82,7 +82,7 @@ class Alipay{
 		fclose($file);
 		*/
 
-		if(empty($data) || !array_key_exists('sign', $data) ||  !array_key_exists('notify_id', $data)){
+		if(empty($data) || !array_key_exists('sign', $data) || !array_key_exists('sign_type', $data) ||  !array_key_exists('notify_id', $data)){
 			return false;
 		}
 

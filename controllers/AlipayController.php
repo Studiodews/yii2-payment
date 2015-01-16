@@ -33,9 +33,10 @@ class AlipayController extends Controller{
 		$tid = $_POST['trade_no'];
 		$status = $this->checkTradeStatus($_POST['trade_status']) ? 1 : 0;
 		$manager = $this->module->manager;
-		$manager->saveNotify($this->mode, $id, $tid, $status, $_POST);
+		$verified = $manager->verifySign(true);
+		$manager->saveNotify($this->mode, $id, $tid, $status, $verified, $_POST);
 
-		if(!$manager->verifySign(true)){
+		if(!$verified){
 			return false;
 		}
 

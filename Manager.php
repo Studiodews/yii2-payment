@@ -40,16 +40,18 @@ class Manager{
 	 * @param {number} $pid 支付记录id
 	 * @param {number} $tid 第三方支付端流水号
 	 * @param {boolean} $status 支付结果状态
+	 * @param {boolean} $verified 消息验证结果
 	 * @param {string} $data 消息通知数据
 	 * @return {none}
-	 * @example Yii::$app->payment->saveNotify($mode, $pid, $tid, $status, $data);
+	 * @example Yii::$app->payment->saveNotify($mode, $pid, $tid, $status, $verified, $data);
 	 */
-	public function saveNotify($mode, $pid, $tid, $status, $data){
+	public function saveNotify($mode, $pid, $tid, $status, $verified, $data){
 		$notify = new PaymentNotify;
 		$notify->mode = $mode;
 		$notify->pid = $pid;
 		$notify->tid = $tid;
 		$notify->status = $status;
+		$notify->verified = $verified ? 1 : 0;
 		$notify->data = Json::encode($data);
 		$notify->created_at = time();
 		$notify->save();
