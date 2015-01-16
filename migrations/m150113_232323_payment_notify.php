@@ -19,7 +19,6 @@ class m150113_232323_payment_notify extends Migration{
 			'status' => Schema::TYPE_BOOLEAN . ' not null default 0 comment "支付结果: 0失败, 1成功"',
 			'data' => Schema::TYPE_TEXT . ' not null comment "消息通知数据(json)"',
 			'created_at' => Schema::TYPE_INTEGER . ' not null comment "接收时间"',
-			'foreign key (pid) references {{%payment}} (id) on update cascade',
 		], $tableOptions . ' comment="第三方支付消息通知记录"');
 	}
 

@@ -52,7 +52,7 @@ class Manager{
 		$notify->status = $status;
 		$notify->data = Json::encode($data);
 		$notify->created_at = time();
-		echo $notify->save();
+		$notify->save();
 	}
 
 	/**
