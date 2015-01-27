@@ -254,8 +254,9 @@ class Manager{
 	 * @since 0.0.1
 	 * @param {number} $cents 以分为单位的金额
 	 * @return {number}
+	 * @example Yii::$app->payment->getYuans($cents);
 	 */
-	private function getYuans($cents){
+	public function getYuans($cents){
 		return $cents / 100;
 	}
 
