@@ -202,7 +202,7 @@ class Manager{
 	 * @return {number}
 	 */
 	private function createId(){
-		return $this->idpre . time() . mt_rand(1000, 9999);
+		return $this->idpre . floor(microtime(true) * 1000) . mt_rand(100, 999);
 	}
 
 	/**
