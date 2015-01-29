@@ -20,7 +20,7 @@ use yii\payment\apis\Alipay;
 
 class Manager{
 
-	//支付记录id前缀, 最高4位纯数字, 默认1000
+	//支付单id前缀, 最高4位纯数字, 默认1000
 	public $idpre = 1000;
 
 	//认证密钥
@@ -37,7 +37,7 @@ class Manager{
 	 * @method complete
 	 * @since 0.0.1
 	 * @param {string} $mode 第三方支付端流水号
-	 * @param {number} $pid 支付记录id
+	 * @param {number} $pid 支付单id
 	 * @param {number} $tid 第三方支付端流水号
 	 * @param {boolean} $status 支付结果状态
 	 * @param {boolean} $verified 消息验证结果
@@ -61,7 +61,7 @@ class Manager{
 	 * 完成支付
 	 * @method complete
 	 * @since 0.0.1
-	 * @param {number} $id 支付记录id
+	 * @param {number} $id 支付单id
 	 * @param {string} $tid 第三方支付端流水号
 	 * @return {none}
 	 * @example Yii::$app->payment->complete($id);
@@ -94,7 +94,7 @@ class Manager{
 	 * 进行支付
 	 * @method getPayUrl
 	 * @since 0.0.1
-	 * @param {number} $id 支付记录id
+	 * @param {number} $id 支付单id
 	 * @param {string} $async 异步通知地址
 	 * @param {string} $sync 同步通知地址
 	 * @param {string} $hash hash加密串
@@ -119,7 +119,7 @@ class Manager{
 	 * 获取hash加密串
 	 * @method getPaymentHash
 	 * @since 0.0.1
-	 * @param {number} [$id] 支付记录id
+	 * @param {number} [$id] 支付单id
 	 * @return {string}
 	 */
 	public function getPaymentHash($id = null){
@@ -143,7 +143,7 @@ class Manager{
 	}
 
 	/**
-	 * 获取当前支付记录id
+	 * 获取当前支付单id
 	 * @method getId
 	 * @since 0.0.1
 	 * @return {number}
@@ -196,7 +196,7 @@ class Manager{
 	}
 
 	/**
-	 * 创建支付记录id
+	 * 创建支付单id
 	 * @method createId
 	 * @since 0.0.1
 	 * @return {number}
@@ -222,7 +222,7 @@ class Manager{
 	 * 获取支付方式
 	 * @method getMode
 	 * @since 0.0.1
-	 * @param {number} $id 支付记录id
+	 * @param {number} $id 支付单id
 	 * @return {string}
 	 * @example Yii::$app->payment->getMode($id);
 	 */
@@ -231,10 +231,10 @@ class Manager{
 	}
 
 	/**
-	 * 获取支付记录
+	 * 获取支付单
 	 * @method getPayment
 	 * @since 0.0.1
-	 * @param {number} $id 支付记录id
+	 * @param {number} $id 支付单id
 	 * @return {object}
 	 */
 	private function getPayment($id){

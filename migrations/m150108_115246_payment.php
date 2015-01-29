@@ -12,7 +12,7 @@ class m150108_115246_payment extends Migration{
 		}
 
 		$this->createTable('{{%payment}}', [
-			'id' => Schema::TYPE_BIGINT . ' not null primary key comment "支付记录id"',
+			'id' => Schema::TYPE_BIGINT . ' not null primary key comment "支付单id"',
 			'oid' => Schema::TYPE_INTEGER . ' not null comment "订单id"',
 			'title' => Schema::TYPE_STRING . '(50) not null comment "订单名称"',
 			'amount' => Schema::TYPE_BIGINT . ' unsigned not null default 0 comment "支付总额(分)"',
@@ -23,7 +23,7 @@ class m150108_115246_payment extends Migration{
 			'completed_at' => Schema::TYPE_INTEGER . ' not null default 0 comment "支付完成时间"',
 			'created_at' => Schema::TYPE_INTEGER . ' not null comment "创建时间"',
 			'updated_at' => Schema::TYPE_INTEGER . ' not null comment "更新时间"',
-		], $tableOptions . ' comment="支付记录"');
+		], $tableOptions . ' comment="支付单"');
 	}
 
 	public function down(){

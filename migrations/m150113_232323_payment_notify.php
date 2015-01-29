@@ -14,7 +14,7 @@ class m150113_232323_payment_notify extends Migration{
 		$this->createTable('{{%payment_notify}}', [
 			'id' => Schema::TYPE_PK . ' comment "通知记录id"',
 			'mode' => Schema::TYPE_STRING . '(50) not null comment "第三方支付类型"',
-			'pid' => Schema::TYPE_BIGINT . ' not null comment "支付记录id"',
+			'pid' => Schema::TYPE_BIGINT . ' not null comment "支付单id"',
 			'tid' => Schema::TYPE_BIGINT . ' not null comment "第三方支付端流水号"',
 			'status' => Schema::TYPE_BOOLEAN . ' not null default 0 comment "支付结果: 0失败, 1成功"',
 			'verified' => Schema::TYPE_BOOLEAN . ' not null default 0 comment "验证结果: 0失败, 1成功"',
