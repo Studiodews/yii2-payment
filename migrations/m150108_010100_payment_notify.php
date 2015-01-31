@@ -3,7 +3,7 @@
 use yii\db\Schema;
 use yii\db\Migration;
 
-class m150113_232323_payment_notify extends Migration{
+class m150108_010100_payment_notify extends Migration{
 
 	public function up(){
 		$tableOptions = 'engine=innodb character set utf8';
