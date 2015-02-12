@@ -254,13 +254,15 @@ class Manager{
 	 * @since 0.0.1
 	 * @param {number} $cents 以分为单位的金额
 	 * @param {boolean} $float 是否强制以浮点输出
-	 * @param {string} $format 格式化参数, 默认2位
+	 * @param {number} $decimals 规定多少个小数
+	 * @param {string} $separator 规定用作千位分隔符的字符串
+	 * @param {string} $decimalpoint 规定用作小数点的字符串, 默认'.'
 	 * @return {number|float}
-	 * @example Yii::$app->payment->getYuans($cents, $float, $format);
+	 * @example Yii::$app->payment->getYuans($cents, $float, $decimals, $separator, $decimalpoint);
 	 */
-	public function getYuans($cents, $float = false, $format = '.2f'){
+	public function getYuans($cents, $float = false, $decimals = 2, $separator = '', $decimalpoint = '.'){
 		$yuans = $cents / 100;
-		return $float ? printf($format, $yuans) : $yuans;
+		return $float ? number_format($yuans, $decimals, $decimalpoint, $separator) : $yuans;
 	}
 
 }
