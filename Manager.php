@@ -253,8 +253,8 @@ class Manager{
 	 * @method getYuans
 	 * @since 0.0.1
 	 * @param {number} $cents 以分为单位的金额
-	 * @param {boolean} $float 是否强制以浮点输出, 默认2位
-	 * @param {string} $format 格式化参数
+	 * @param {boolean} $float 是否强制以浮点输出
+	 * @param {string} $format 格式化参数, 默认2位
 	 * @return {number|float}
 	 * @example Yii::$app->payment->getYuans($cents, $float, $format);
 	 */
