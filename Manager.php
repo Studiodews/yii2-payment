@@ -253,11 +253,14 @@ class Manager{
 	 * @method getYuans
 	 * @since 0.0.1
 	 * @param {number} $cents 以分为单位的金额
-	 * @return {number}
-	 * @example Yii::$app->payment->getYuans($cents);
+	 * @param {boolean} $float 是否强制以浮点输出, 默认2位
+	 * @param {string} $format 格式化参数
+	 * @return {number|float}
+	 * @example Yii::$app->payment->getYuans($cents, $float, $format);
 	 */
-	public function getYuans($cents){
-		return $cents / 100;
+	public function getYuans($cents, $float = false, $format = '.2f'){
+		$yuans = $cents / 100;
+		return $float ? printf($format, $yuans) : $yuans;
 	}
 
 }
