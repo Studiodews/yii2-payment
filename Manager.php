@@ -253,10 +253,10 @@ class Manager{
 	 * @method getYuans
 	 * @since 0.0.1
 	 * @param {number} $cents 以分为单位的金额
-	 * @param {boolean} $float 是否强制以浮点输出
-	 * @param {number} $decimals 规定多少个小数
-	 * @param {string} $separator 规定用作千位分隔符的字符串
-	 * @param {string} $decimalpoint 规定用作小数点的字符串, 默认'.'
+	 * @param {boolean} [$float=false] 是否强制以浮点输出
+	 * @param {number} [$decimals=2] 规定多少个小数
+	 * @param {string} [$separator=''] 规定用作千位分隔符的字符串
+	 * @param {string} [$decimalpoint='.'] 规定用作小数点的字符串, 默认'.'
 	 * @return {number|float}
 	 * @example Yii::$app->payment->getYuans($cents, $float, $decimals, $separator, $decimalpoint);
 	 */
