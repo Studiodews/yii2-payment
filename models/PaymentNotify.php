@@ -2,6 +2,7 @@
 
 namespace yii\payment\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 
 class PaymentNotify extends ActiveRecord{
