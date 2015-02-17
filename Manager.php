@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/1/29
+ * update: 2015/2/17
  * version: 0.0.1
  */
 
@@ -174,7 +174,7 @@ class Manager{
 			throw new ErrorException('Payment amount must be a positive integer');
 		}
 
-		if(!array_key_exists($mode, $this->modes)){
+		if(!isset($this->modes[$mode])){
 			throw new ErrorException('Unsupported payment mode');
 		}
 

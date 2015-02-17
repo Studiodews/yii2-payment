@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/1/13
+ * update: 2015/2/17
  * version: 0.0.1
  */
 
@@ -82,7 +82,7 @@ class Alipay{
 		fclose($file);
 		*/
 
-		if(empty($data) || !array_key_exists('sign', $data) || !array_key_exists('sign_type', $data) ||  !array_key_exists('notify_id', $data)){
+		if(empty($data) || !isset($data['sign']) || !isset($data['sign_type']) ||  !isset($data['notify_id'])){
 			return false;
 		}
 
