@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/2/17
+ * update: 2015/3/1
  * version: 0.0.1
  */
 
@@ -202,7 +202,7 @@ class Manager{
 	 * @return {number}
 	 */
 	private function createId(){
-		return $this->idpre . floor(microtime(true) * 1000) . mt_rand(100, 999);
+		return $this->idpre . floor(microtime(true) * 100) . mt_rand(100, 999);
 	}
 
 	/**
