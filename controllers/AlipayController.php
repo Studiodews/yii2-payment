@@ -40,8 +40,8 @@ class AlipayController extends Controller{
 			return false;
 		}
 
-		if($status && $manager->complete($id, $tid) && $this->module->asyncRoute){
-			$this->run($this->module->asyncRoute, ['id' => $id]);
+		if($status && $manager->complete($id, $tid) && $asyncClass = $this->module->asyncClass){
+			$asyncClass::paied($id);
 		}
 
 		return 'success';
