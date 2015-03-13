@@ -13,7 +13,7 @@ class m150108_010000_payment extends Migration{
 
 		$this->createTable('{{%payment}}', [
 			'id' => Schema::TYPE_BIGINT . ' not null primary key comment "支付单id"',
-			'oid' => Schema::TYPE_INTEGER . ' not null comment "订单id"',
+			'oid' => Schema::TYPE_STRING . ' not null comment "订单id, 多个以英文逗号隔开"',
 			'title' => Schema::TYPE_STRING . '(50) not null comment "订单名称"',
 			'amount' => Schema::TYPE_BIGINT . ' unsigned not null default 0 comment "支付总额(分)"',
 			'description' => Schema::TYPE_STRING . ' comment "描述信息"',
