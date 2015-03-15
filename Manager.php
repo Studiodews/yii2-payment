@@ -201,8 +201,8 @@ class Manager{
 	 * @since 0.0.1
 	 * @return {number}
 	 */
-	private function createId(){
-		return $this->idpre . floor(microtime(true) * 100) . mt_rand(100, 999);
+	public function createId($idpre = null){
+		return (empty($idpre) ? $this->idpre : $idpre) . floor(microtime(true) * 100) . mt_rand(100, 999);
 	}
 
 	/**
