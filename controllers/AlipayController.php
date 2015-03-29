@@ -33,7 +33,7 @@ class AlipayController extends Controller{
 		$tid = $_POST['trade_no'];
 		$status = $this->checkTradeStatus($_POST['trade_status']) ? 1 : 0;
 		$manager = $this->module->manager;
-		$verified = $manager->verifySign(true);
+		$verified = $manager->verifySign($this->mode, true);
 		$manager->saveNotify($this->mode, $id, $tid, $status, $verified, $_POST);
 
 		if(!$verified){
@@ -48,7 +48,7 @@ class AlipayController extends Controller{
 	}
 
 	public function actionSync(){
-		if(!$this->module->manager->verifySign()){
+		if(!$this->module->manager->verifySign($this->mode)){
 			return '验证失败';
 		}
 

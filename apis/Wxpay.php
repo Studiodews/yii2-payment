@@ -88,7 +88,7 @@ class Wxpay{
 
 		$params['sign'] = $this->sign($params);
 		
-		return $this->getXmlPostData($this->curl($this->unifiedorder, $this->xmlFormatter($params)));
+		return static::getXmlPostData($this->curl($this->unifiedorder, static::xmlFormatter($params)));
 	}
 
 	/**
@@ -119,9 +119,9 @@ class Wxpay{
 	 * @since 0.0.1
 	 * @param {array} $params 参数
 	 * @return {string}
-	 * @example $this->xmlFormatter($params);
+	 * @example static::xmlFormatter($params);
 	 */
-	public function xmlFormatter($params){
+	public static function xmlFormatter($params){
 		$xml = ['<xml>'];
 		foreach($params as $key => $value){
 			$xml[] = "<$key><![CDATA[$value]]></$key>";
@@ -137,11 +137,11 @@ class Wxpay{
 	 * @since 0.0.1
 	 * @param {object} $postStr post数据
 	 * @return {array}
-	 * @example $this->getXmlPostData();
+	 * @example static::getXmlPostData();
 	 */
-	public function getXmlPostData($postStr = null){
+	public static function getXmlPostData($postStr = null){
 		if(empty($postStr)){
-			$postStr = @$GLOBALS["HTTP_RAW_POST_DATA"];
+			$postStr = @$GLOBALS['HTTP_RAW_POST_DATA'];
 		}
 
 		return empty($postStr) ? null : @json_decode(@json_encode((array) simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
@@ -155,7 +155,10 @@ class Wxpay{
 	 * @return {boolean}
 	 * @example $this->verifySign($data);
 	 */
-	public function verifySign($data){
+	public function verifySign($data = null){
+		if(empty($data)){
+			$data = static::getXmlPostData();
+		}
 		$sign = $data['sign'];
 		$data['sign'] = null;
 		

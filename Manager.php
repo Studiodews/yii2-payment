@@ -42,9 +42,9 @@ class Manager{
 	 * @example Yii::$app->payment->getPackage($notify_url);
 	 */
 	public function getPackage($notify_url){
-		$prepay = [];
+		$prepay = ['return_code' => 'FAIL', 'return_msg' => '签名验证失败'];
+		$post = Wxpay::getXmlPostData();
 		$wxpay = Wxpay::sdk($this->modes['wxpay']);
-		$post = $wxpay->getXmlPostData();
 		if($wxpay->verifySign($post)){
 			$payment = Payment::findById($post['product_id']);
 			$prepay = $wxpay->createUnifiedOrder(array_merge($payment->toArray(), $post), $notify_url);
@@ -54,7 +54,7 @@ class Manager{
 			}
 		}
 
-		return $wxpay->xmlFormatter($prepay);
+		return $prepay;
 	}
 
 	/**
@@ -104,15 +104,26 @@ class Manager{
 	}
 
 	/**
-	 * 进行支付
+	 * 验证签名
 	 * @method verifySign
 	 * @since 0.0.1
+	 * @param {string} [$mode] 支付方式
 	 * @param {boolean} [$async=false] 是否为异步通知
 	 * @return {boolean}
-	 * @example Yii::$app->payment->verifySign($async);
+	 * @example Yii::$app->payment->verifySign($mode, $async);
 	 */
-	public function verifySign($async = false){
-		return Alipay::sdk($this->modes['alipay'])->verifySign($async);
+	public function verifySign($mode, $async = false){
+		$result = false;
+		switch($mode){
+			case 'alipay':
+				$result = Alipay::sdk($this->modes[$mode])->verifySign($async);
+				break;
+			case 'wxpay':
+				$result = Wxpay::sdk($this->modes[$mode])->verifySign();
+				break;
+		}
+
+		return $result;
 	}
 
 	/**
