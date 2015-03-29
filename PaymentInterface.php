@@ -9,6 +9,8 @@ interface PaymentInterface{
 	 * @method paied
 	 * @since 0.0.1
 	 * @param {string} $id 支付单id
+	 * @return {none}
+	 * @example static::paied
 	 */
 	public static function paied($id);
 

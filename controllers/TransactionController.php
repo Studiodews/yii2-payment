@@ -18,11 +18,11 @@ class TransactionController extends Controller{
 			throw new ErrorException('Payment has been disabled');
 		}
 
-		$urlManager = Yii::$app->urlManager;
+		$urlManager = \Yii::$app->urlManager;
 		$callbackRoute = DIRECTORY_SEPARATOR . $this->module->id . DIRECTORY_SEPARATOR . $mode . DIRECTORY_SEPARATOR;
 		$payUrl = $manager->getPayUrl($id, $urlManager->createAbsoluteUrl($callbackRoute . 'async'), $urlManager->createAbsoluteUrl($callbackRoute . 'sync'), $hash);
 
-		if(!$payUrl){
+		if(empty($payUrl)){
 			throw new ErrorException('Payment order abnormal');
 		}
 

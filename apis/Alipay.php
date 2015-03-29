@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/2/17
+ * update: 2015/3/28
  * version: 0.0.1
  */
 
@@ -59,7 +59,7 @@ class Alipay{
 	 * @since 0.0.1
 	 * @param {array} $config 参数数组
 	 * @return {none}
-	 * @example Alipay::sdk($config);
+	 * @example static::sdk($config);
 	 */
 	public static function sdk($config){
 		return new static($config);
@@ -71,7 +71,7 @@ class Alipay{
 	 * @since 0.0.1
 	 * @param {boolean} [$async=false] 是否为异步通知
 	 * @return {boolean}
-	 * @example Alipay::sdk($config)->verifySign($async);
+	 * @example $this->verifySign($async);
 	 */
 	public function verifySign($async = false){
 		$data = $async ? $_POST : $_GET;
@@ -91,7 +91,7 @@ class Alipay{
 		$data['sign'] = null;
 		$data['sign_type'] = null;
 
-		return Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrSort($data)))) && $this->verifyNotify($data['notify_id']);
+		return Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrKsort($data)))) && $this->verifyNotify($data['notify_id']);
 	}
 
 	/**
@@ -140,7 +140,7 @@ class Alipay{
 	 * @param {string} $body 订单描述
 	 * @param {string} $show_url 商品展示地址
 	 * @return {string}
-	 * @example Alipay::sdk($config)->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url);
+	 * @example $this->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url);
 	 */
 	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null){
 		return $this->buildRequest(array_merge([
@@ -164,23 +164,23 @@ class Alipay{
 	 * @return {string}
 	 */
 	private function buildRequest($params){
-		$querystring = $this->getQeuryString($this->arrSort($params));
+		$queryString = $this->getQeuryString($this->arrKsort($params));
 
-		return $this->api . $querystring . '&sign=' . $this->sign($querystring) . '&sign_type=' . $this->sign_type;
+		return $this->api . $queryString . '&sign=' . $this->sign($queryString) . '&sign_type=' . $this->sign_type;
 	}
 
 	/**
-	 * 对querystring进行签名并返回相应的string
+	 * 对queryString进行签名并返回相应的string
 	 * @method sign
 	 * @since 0.0.1
-	 * @param {string} $string uerystring 
+	 * @param {string} $queryString query string
 	 * @return {string}
 	 */
-	private function sign($string){
+	private function sign($queryString){
 		$sign = '';
 		switch($this->sign_type){
 			case 'MD5':
-				$sign = md5($string . $this->config['key']);
+				$sign = md5($queryString . $this->config['key']);
 				break;
 		}
 
@@ -188,7 +188,7 @@ class Alipay{
 	}
 
 	/**
-	 * 获取querystring
+	 * 获取queryString
 	 * @method getQeuryString
 	 * @since 0.0.1
 	 * @param {array} $arr 需转换数组
@@ -200,12 +200,12 @@ class Alipay{
 
 	/**
 	 * 对签名参数进行数组排序
-	 * @method arrSort
+	 * @method arrKsort
 	 * @since 0.0.1
 	 * @param {array} $arr 需排序数组
 	 * @return {array}
 	 */
-	private function arrSort($arr){
+	private function arrKsort($arr){
 		ksort($arr);
 		reset($arr);
 

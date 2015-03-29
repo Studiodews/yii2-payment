@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/3/1
+ * update: 2015/3/27
  * version: 0.0.1
  */
 
@@ -17,6 +17,7 @@ use yii\helpers\Json;
 use yii\payment\models\Payment;
 use yii\payment\models\PaymentNotify;
 use yii\payment\apis\Alipay;
+use yii\payment\apis\Wxpay;
 
 class Manager{
 
@@ -33,8 +34,32 @@ class Manager{
 	private $payment = false;
 
 	/**
+	 * 获取微信打包信息
+	 * @method getPackage
+	 * @since 0.0.1
+	 * @param {string} $notify_url 异步通知地址
+	 * @return {string}
+	 * @example Yii::$app->payment->getPackage($notify_url);
+	 */
+	public function getPackage($notify_url){
+		$prepay = [];
+		$wxpay = Wxpay::sdk($this->modes['wxpay']);
+		$post = $wxpay->getXmlPostData();
+		if($wxpay->verifySign($post)){
+			$payment = Payment::findById($post['product_id']);
+			$prepay = $wxpay->createUnifiedOrder(array_merge($payment->toArray(), $post), $notify_url);
+			if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS'){
+				$payment->tid = $prepay['prepay_id'];
+				$payment->save();
+			}
+		}
+
+		return $wxpay->xmlFormatter($prepay);
+	}
+
+	/**
 	 * 第三方消息通知记录
-	 * @method complete
+	 * @method saveNotify
 	 * @since 0.0.1
 	 * @param {string} $mode 第三方支付端流水号
 	 * @param {number} $pid 支付单id
@@ -97,29 +122,59 @@ class Manager{
 	 * @param {number} $id 支付单id
 	 * @param {string} $async 异步通知地址
 	 * @param {string} $sync 同步通知地址
-	 * @param {string} $hash hash加密串
-	 * @return {none}
+	 * @param {string} [$hash=null] hash加密串
+	 * @return {string}
 	 * @example Yii::$app->payment->getPayUrl($id, $async, $sync, $hash);
 	 */
 	public function getPayUrl($id, $async, $sync, $hash = null){
+		$payUrl = null;
 		$payment = $this->getPayment($id);
-		
 		if($this->hashkey === false || $payment->validateData($id, $hash, $this->hashkey)){
 			switch($payment->mode){
 				case 'alipay':
-					return $this->alipayPayUrl($async, $sync);
+					$payUrl = $this->getAlipayPayUrl($async, $sync);
+					break;
+				case 'wxpay':
+					$payUrl = $this->getWxpayPayUrl($async, $sync);
 					break;
 			}
 		}
 
-		return false;
+		return $payUrl;
+	}
+
+	/**
+	 * 使用微信进行支付
+	 * @method getWxpayPayUrl
+	 * @since 0.0.1
+	 * @param {string} $async 异步通知地址
+	 * @param {string} $sync 同步通知地址
+	 * @return {string}
+	 */
+	private function getWxpayPayUrl($async, $sync){
+		$this->payment->url = \Yii::$app->qrcode->create(Wxpay::sdk($this->modes['wxpay'])->createBizpayurl($this->payment->id));
+		$this->payment->save();
+
+		return [$this->modes['wxpay']['qrcodeRoute'], 'id' => $this->payment->id];
+	}
+
+	/**
+	 * 使用支付宝进行支付
+	 * @method getAlipayPayUrl
+	 * @since 0.0.1
+	 * @param {string} $async 异步通知地址
+	 * @param {string} $sync 同步通知地址
+	 * @return {string}
+	 */
+	private function getAlipayPayUrl($async, $sync){
+		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
 	}
 
 	/**
 	 * 获取hash加密串
 	 * @method getPaymentHash
 	 * @since 0.0.1
-	 * @param {number} [$id] 支付单id
+	 * @param {number} [$id=null] 支付单id
 	 * @return {string}
 	 */
 	public function getPaymentHash($id = null){
@@ -128,18 +183,6 @@ class Manager{
 		}
 
 		return $this->payment === false ? '' : $this->payment->generateDataHash($this->hashkey);
-	}
-
-	/**
-	 * 使用支付宝进行支付
-	 * @method alipayPayUrl
-	 * @since 0.0.1
-	 * @param {string} $async 异步通知地址
-	 * @param {string} $sync 同步通知地址
-	 * @return {none}
-	 */
-	private function alipayPayUrl($async, $sync){
-		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
 	}
 
 	/**
@@ -169,15 +212,12 @@ class Manager{
 		if(empty($oid)){
 			throw new ErrorException('Order id must be requied');
 		}
-
 		if($amount <= 0){
 			throw new ErrorException('Payment amount must be a positive integer');
 		}
-
 		if(!isset($this->modes[$mode])){
 			throw new ErrorException('Unsupported payment mode');
 		}
-
 		if($this->disabledMode($mode)){
 			throw new ErrorException('Payment mode has been disabled');
 		}
@@ -199,6 +239,7 @@ class Manager{
 	 * 创建支付单id
 	 * @method createId
 	 * @since 0.0.1
+	 * @param {number|string} [$idpre=null] 支付单前缀
 	 * @return {number}
 	 */
 	public function createId($idpre = null){
@@ -209,12 +250,13 @@ class Manager{
 	 * 检查支付方式是否被禁用
 	 * @method disabledMode
 	 * @since 0.0.1
-	 * @param {string} $mode mode
+	 * @param {string} $mode 支付方式
 	 * @return {boolean}
 	 * @example Yii::$app->payment->disabledMode($mode);
 	 */
 	public function disabledMode($mode){
 		$mode = $this->modes[$mode];
+
 		return isset($mode['disabled']) && $mode['disabled'];
 	}
 
@@ -262,6 +304,7 @@ class Manager{
 	 */
 	public function getYuans($cents, $float = false, $decimals = 2, $separator = '', $decimalpoint = '.'){
 		$yuans = $cents / 100;
+
 		return $float ? number_format($yuans, $decimals, $decimalpoint, $separator) : $yuans;
 	}
 
