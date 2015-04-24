@@ -34,6 +34,63 @@ class Manager{
 	private $payment = false;
 
 	/**
+	 * 获取openid
+	 * @method getOpenId
+	 * @since 0.0.1
+	 * @param {string} $code 票据
+	 * @return {string}
+	 * @example Yii::$app->payment->getOpenId($code);
+	 */
+	public function getOpenId($code){
+		return Wxpay::sdk($this->modes['wxpay'])->getOpenId($code);
+	}
+
+	/**
+	 * 获取微信网页授权地址
+	 * @method getSnsapiUrl
+	 * @since 0.0.1
+	 * @param {string} $return_url 回调地址
+	 * @param {string} [$state=null] 返回参数
+	 * @return {string}
+	 * @example Yii::$app->payment->getSnsapiUrl($return_url, $state);
+	 */
+	public function getSnsapiUrl($return_url, $state = null){
+		return Wxpay::sdk($this->modes['wxpay'])->getSnsapiUrl($return_url, $state);
+	}
+
+	/**
+	 * 获取微信js网页支付打包信息
+	 * @method getJsPackage
+	 * @since 0.0.1
+	 * @param {string} $openid 用户标识
+	 * @param {string} $notify_url 异步通知地址
+	 * @return {array}
+	 * @example Yii::$app->payment->getJsPackage($openid, $notify_url);
+	 */
+	public function getJsPackage($openid, $notify_url){
+		$wxpayConfig = $this->modes['wxpay'];
+		$wxpay = Wxpay::sdk($wxpayConfig);
+		$prepay = $wxpay->createUnifiedOrder(array_merge($this->payment->toArray(), ['openid' => $openid]), $notify_url, 'JSAPI');
+
+		$package = false;
+		if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS'){
+			$this->payment->tid = $prepay['prepay_id'];
+			$this->payment->save();
+			$time = time();
+			$package = [
+				'appId' => $wxpayConfig['appid'],
+				'timeStamp' => $time,
+				'nonceStr' => md5(mt_rand()),
+				'package' => 'prepay_id=' . $this->payment->tid,
+				'signType' => 'MD5',
+			];
+			$package['paySign'] = $wxpay->sign($package);
+		}
+
+		return $package;
+	}
+
+	/**
 	 * 获取微信打包信息
 	 * @method getPackage
 	 * @since 0.0.1

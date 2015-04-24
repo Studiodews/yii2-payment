@@ -22,6 +22,12 @@ class Wxpay{
 	//统一下单接口
 	private $unifiedorder = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
 
+	//统一下单接口
+	private $snsapi = 'https://open.weixin.qq.com/connect/oauth2/authorize?';
+
+	//获取access token地址
+	private $tokenapi = 'https://api.weixin.qq.com/sns/oauth2/access_token?';
+
 	//配置参数
 	private $config;
 
@@ -46,6 +52,45 @@ class Wxpay{
 	 */
 	public static function sdk($config){
 		return new static($config);
+	}
+
+	/**
+	 * 获取openid
+	 * @method getOpenId
+	 * @since 0.0.1
+	 * @param {string} $code 票据
+	 * @return {string}
+	 * @example $this->getOpenId($code);
+	 */
+	public function getOpenId($code){
+		$data = Json::decode($this->curl($this->tokenapi . $this->getQeuryString([
+			'appid' => $this->config['appid'],
+			'secret' => $this->config['secret'],
+			'code' => $code,
+			'grant_type' => 'authorization_code',
+		])));
+
+		return isset($data['openid']) ? $data['openid'] : false;
+	}
+
+	/**
+	 * 获取网页授权地址
+	 * @method getSnsapiUrl
+	 * @since 0.0.1
+	 * @param {string} $return_url 回调地址
+	 * @param {string} [$state=null] 返回参数
+	 * @param {string} [$scope='snsapi_userinfo'] 授权类型
+	 * @return {array}
+	 * @example $this->getSnsapiUrl($return_url, $state, $scope);
+	 */
+	public function getSnsapiUrl($return_url, $state = null, $scope = 'snsapi_userinfo'){
+		return $this->snsapi . http_build_query([
+			'appid' => $this->config['appid'],
+			'redirect_uri' => $return_url,
+			'response_type' => 'code',
+			'scope' => $scope,
+			'state' => empty($state) ? $this->createNonceStr() : $state,
+		]) . '#wechat_redirect';
 	}
 
 	/**
@@ -172,7 +217,7 @@ class Wxpay{
 	 * @param {array} $params 参与签名的参数
 	 * @return {string}
 	 */
-	private function sign($params){
+	public function sign($params){
 		return strtoupper(md5($this->getQeuryString($this->arrKsort($params)) . '&key=' . $this->config['key']));
 	}
 
