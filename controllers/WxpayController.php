@@ -18,7 +18,8 @@ class WxpayController extends Controller{
 			'verbs' => [
 				'class' => VerbFilter::className(),
 				'actions' => [
-					//'async' => ['post'],
+					'async' => ['post'],
+					'package' => ['post'],
 				],
 			],
 		];
