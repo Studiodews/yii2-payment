@@ -12,6 +12,7 @@
 namespace yii\payment\apis;
 
 use Yii;
+use yii\helpers\Json;
 use yii\helpers\ArrayHelper;
 
 class Wxpay{
