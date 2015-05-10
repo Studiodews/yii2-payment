@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/3/27
+ * update: 2015/5/10
  * version: 0.0.1
  */
 
@@ -16,8 +16,9 @@ use yii\base\ErrorException;
 use yii\helpers\Json;
 use yii\payment\models\Payment;
 use yii\payment\models\PaymentNotify;
-use yii\payment\apis\Alipay;
 use yii\payment\apis\Wxpay;
+use yii\payment\apis\Alipay;
+use yii\payment\apis\Unionpay;
 
 class Manager{
 
@@ -172,11 +173,11 @@ class Manager{
 	public function verifySign($mode, $async = false){
 		$result = false;
 		switch($mode){
-			case 'alipay':
-				$result = Alipay::sdk($this->modes[$mode])->verifySign($async);
-				break;
 			case 'wxpay':
 				$result = Wxpay::sdk($this->modes[$mode])->verifySign();
+				break;
+			case 'alipay':
+				$result = Alipay::sdk($this->modes[$mode])->verifySign($async);
 				break;
 		}
 
@@ -199,16 +200,43 @@ class Manager{
 		$payment = $this->getPayment($id);
 		if($this->hashkey === false || $payment->validateData($id, $hash, $this->hashkey)){
 			switch($payment->mode){
+				case 'wxpay':
+					$payUrl = $this->getWxpayPayUrl($async, $sync);
+					break;
 				case 'alipay':
 					$payUrl = $this->getAlipayPayUrl($async, $sync);
 					break;
-				case 'wxpay':
-					$payUrl = $this->getWxpayPayUrl($async, $sync);
+				case 'unionpay':
+					$payUrl = $this->getUnionPayUrl($async, $sync);
 					break;
 			}
 		}
 
 		return $payUrl;
+	}
+
+	/**
+	 * 使用银联进行支付
+	 * @method getUnionPayUrl
+	 * @since 0.0.1
+	 * @param {string} $async 异步通知地址
+	 * @param {string} $sync 同步通知地址
+	 * @return {string}
+	 */
+	private function getUnionPayUrl($async, $sync){
+		return Unionpay::sdk($this->modes['unionpay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->amount);
+	}
+
+	/**
+	 * 使用支付宝进行支付
+	 * @method getAlipayPayUrl
+	 * @since 0.0.1
+	 * @param {string} $async 异步通知地址
+	 * @param {string} $sync 同步通知地址
+	 * @return {string}
+	 */
+	private function getAlipayPayUrl($async, $sync){
+		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
 	}
 
 	/**
@@ -224,18 +252,6 @@ class Manager{
 		$this->payment->save();
 
 		return [$this->modes['wxpay']['qrcodeRoute'], 'id' => $this->payment->id];
-	}
-
-	/**
-	 * 使用支付宝进行支付
-	 * @method getAlipayPayUrl
-	 * @since 0.0.1
-	 * @param {string} $async 异步通知地址
-	 * @param {string} $sync 同步通知地址
-	 * @return {string}
-	 */
-	private function getAlipayPayUrl($async, $sync){
-		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
 	}
 
 	/**

@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/3/28
+ * update: 2015/5/10
  * version: 0.0.1
  */
 
@@ -76,12 +76,6 @@ class Alipay{
 	public function verifySign($async = false){
 		$data = $async ? $_POST : $_GET;
 
-		/*
-		$file = fopen(Yii::getAlias('@webroot/assets') . '/alipay.txt', 'a+');
-		fwrite($file, print_r($data, true));
-		fclose($file);
-		*/
-
 		if(empty($data) || !isset($data['sign']) || !isset($data['sign_type']) ||  !isset($data['notify_id'])){
 			return false;
 		}
@@ -134,6 +128,8 @@ class Alipay{
 	 * 获取支付链接
 	 * @method getPayUrl
 	 * @since 0.0.1
+	 * @param {string} $notify_url 异步通知地址
+	 * @param {string} $return_url 同步通知地址
 	 * @param {string} $out_trade_no 商户订单号
 	 * @param {string} $subject 订单名称
 	 * @param {number} $total_fee 付款金额
