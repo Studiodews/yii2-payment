@@ -26,7 +26,7 @@ class TransactionController extends Controller{
 			throw new ErrorException('Payment order abnormal');
 		}
 
-		return $this->redirect($payUrl);
+		return $mode == 'unionpay' ? $payUrl : $this->redirect($payUrl);
 	}
 
 }
