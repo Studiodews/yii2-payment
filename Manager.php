@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/5/10
+ * update: 2015/5/11
  * version: 0.0.1
  */
 
@@ -178,6 +178,9 @@ class Manager{
 				break;
 			case 'alipay':
 				$result = Alipay::sdk($this->modes[$mode])->verifySign($async);
+				break;
+			case 'unionpay':
+				$result = Unionpay::sdk($this->modes[$mode])->verifySign($async);
 				break;
 		}
 

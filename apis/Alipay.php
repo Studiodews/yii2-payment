@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/5/10
+ * update: 2015/5/11
  * version: 0.0.1
  */
 
@@ -82,8 +82,8 @@ class Alipay{
 
 		$sign = $data['sign'];
 
-		$data['sign'] = null;
-		$data['sign_type'] = null;
+		unset($data['sign']);
+		unset($data['sign_type']);
 
 		return Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrKsort($data)))) && $this->verifyNotify($data['notify_id']);
 	}

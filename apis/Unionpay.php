@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/10
- * update: 2015/5/10
+ * update: 2015/5/11
  * version: 0.0.1
  */
 
@@ -52,16 +52,19 @@ class Unionpay{
 	private $dev;
 
 	//银联网关
-	private $api = 'https://gateway.95516.com/gateway/api/';
+	private $api;
+
+	//签名证书路径
+	private $signCertPath;
+
+	//签名证书密码
+	private $signCertPwd;
+
+	//公钥证书路径
+	private $verifyCertPath;
 
 	//前台请求接口
 	private $frontTransReq = 'frontTransReq.do';
-
-	//签名证书路径
-	private $signCertPath = '';
-
-	//签名证书密码
-	private $signCertPwd = '000000';
 
 	/**
 	 * 构造器
@@ -77,9 +80,13 @@ class Unionpay{
 		if($this->dev){
 			$this->api = 'https://101.231.204.80:5000/gateway/api/';
 			$this->signCertPath = __DIR__ . '/unionpay_700000000000001_dev.pfx';
+			$this->signCertPwd = '000000';
+			$this->verifyCertPath = __DIR__ . '/unionpay_verify_dev.cer';
 		}else{
+			$this->api = 'https://gateway.95516.com/gateway/api/';
 			$this->signCertPath = $this->config['signCertPath'];
 			$this->signCertPwd = $this->config['signCertPwd'];
+			$this->verifyCertPath = __DIR__ . '/unionpay_verify_prod.cer';
 		}
 	}
 
@@ -93,6 +100,28 @@ class Unionpay{
 	 */
 	public static function sdk($config){
 		return new static($config);
+	}
+
+	/**
+	 * 验证签名
+	 * @method verifySign
+	 * @since 0.0.1
+	 * @param {boolean} [$async=false] 是否为异步通知
+	 * @return {boolean}
+	 * @example $this->verifySign($async);
+	 */
+	public function verifySign($async = false){
+		$data = $_POST;
+
+		if(empty($data) || !isset($data['signature'])){
+			return false;
+		}
+
+		$signature = base64_decode($data['signature']);
+		unset($data['signature']);
+		$params_sha1x16 = sha1($this->getQeuryString($this->arrKsort($data)), false);
+
+		return openssl_verify($params_sha1x16, $signature, $this->getPulbicKey(), OPENSSL_ALGO_SHA1);
 	}
 
 	/**
@@ -143,12 +172,21 @@ class Unionpay{
 			unset($params['transTempUrl']);
 		}
 
-		ksort($params);
-		$params_sha1x16 = sha1(urldecode(http_build_query($params)), false);
+		$params_sha1x16 = sha1($this->getQeuryString($this->arrKsort($params)), false);
 		$private_key = $this->getPrivateKey();
 		$sign_falg = openssl_sign($params_sha1x16, $signature, $private_key, OPENSSL_ALGO_SHA1);
 
 		return base64_encode($signature);
+	}
+
+	/**
+	 * 获取公钥
+	 * @method getPulbicKey
+	 * @since 0.0.1
+	 * @return {string}
+	 */
+	private function getPulbicKey(){
+		return file_get_contents(\Yii::getAlias($this->verifyCertPath));
 	}
 
 	/**
@@ -207,6 +245,31 @@ class Unionpay{
 		$form[] = '</form><script type="text/javascript">document.' . $id. '.submit();</script>';
 
 		return implode('', $form);
+	}
+
+	/**
+	 * 获取queryString
+	 * @method getQeuryString
+	 * @since 0.0.1
+	 * @param {array} $arr 需转换数组
+	 * @return {string}
+	 */
+	private function getQeuryString($arr){
+		return urldecode(http_build_query($arr));
+	}
+
+	/**
+	 * 对签名参数进行数组排序
+	 * @method arrKsort
+	 * @since 0.0.1
+	 * @param {array} $arr 需排序数组
+	 * @return {array}
+	 */
+	private function arrKsort($arr){
+		ksort($arr);
+		reset($arr);
+
+		return $arr;
 	}
 
 	/**
