@@ -44,7 +44,8 @@ class BaifubaoController extends Controller{
 			$asyncClass::paied($id);
 		}
 
-		return 'success';
+		$this->layout = $this->mode;
+		return $this->render($this->action->id);
 	}
 
 	public function actionSync(){
