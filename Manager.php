@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/5/11
+ * update: 2015/5/12
  * version: 0.0.1
  */
 
@@ -19,6 +19,7 @@ use yii\payment\models\PaymentNotify;
 use yii\payment\apis\Wxpay;
 use yii\payment\apis\Alipay;
 use yii\payment\apis\Unionpay;
+use yii\payment\apis\Baifubao;
 
 class Manager{
 
@@ -182,6 +183,9 @@ class Manager{
 			case 'unionpay':
 				$result = Unionpay::sdk($this->modes[$mode])->verifySign($async);
 				break;
+			case 'baifubao':
+				$result = Baifubao::sdk($this->modes[$mode])->verifySign($async);
+				break;
 		}
 
 		return $result;
@@ -212,10 +216,25 @@ class Manager{
 				case 'unionpay':
 					$payUrl = $this->getUnionPayUrl($async, $sync);
 					break;
+				case 'baifubao':
+					$payUrl = $this->getBaifubaoUrl($async, $sync);
+					break;
 			}
 		}
 
 		return $payUrl;
+	}
+
+	/**
+	 * 使用百付宝进行支付
+	 * @method getBaifubaoUrl
+	 * @since 0.0.1
+	 * @param {string} $async 异步通知地址
+	 * @param {string} $sync 同步通知地址
+	 * @return {string}
+	 */
+	private function getBaifubaoUrl($async, $sync){
+		return Baifubao::sdk($this->modes['baifubao'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->payment->amount);
 	}
 
 	/**

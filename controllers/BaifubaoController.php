@@ -6,18 +6,18 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 
-class AlipayController extends Controller{
+class BaifubaoController extends Controller{
 
 	public $enableCsrfValidation = false;
 
-	private $mode = 'alipay';
+	private $mode = 'baifubao';
 
 	public function behaviors(){
 		return [
 			'verbs' => [
 				'class' => VerbFilter::className(),
 				'actions' => [
-					'async' => ['post'],
+					'async' => ['get'],
 					'sync' => ['get'],
 				],
 			],
@@ -25,13 +25,13 @@ class AlipayController extends Controller{
 	}
 
 	public function actionAsync(){
-		if(!empty($_POST) && !isset($_POST['out_trade_no']) || !isset($_POST['trade_no']) || !isset($_POST['trade_status'])){
+		if(!empty($_GET) && !isset($_GET['order_no']) && !isset($_GET['bfb_order_no']) && !isset($_GET['pay_result'])){
 			return false;
 		}
 
-		$id = $_POST['out_trade_no'];
-		$tid = $_POST['trade_no'];
-		$status = $this->checkTradeStatus($_POST['trade_status']) ? 1 : 0;
+		$id = $_POST['order_no'];
+		$tid = $_POST['bfb_order_no'];
+		$status = $this->checkTradeStatus($_POST['pay_result']) ? 1 : 0;
 		$manager = $this->module->manager;
 		$verified = $manager->verifySign($this->mode, true);
 		$manager->saveNotify($this->mode, $id, $tid, $status, $verified, $_POST);
@@ -53,15 +53,15 @@ class AlipayController extends Controller{
 		}
 
 		$request = Yii::$app->request;
-		if($this->checkTradeStatus($request->get('trade_status'))){
-			return $this->module->syncRoute ? $this->redirect([$this->module->syncRoute, 'id' => $request->get('out_trade_no')]) : '付款成功';
+		if($this->checkTradeStatus($request->get('pay_result'))){
+			return $this->module->syncRoute ? $this->redirect([$this->module->syncRoute, 'id' => $request->get('order_no')]) : '付款成功';
 		}
 
 		return '验证成功';
 	}
 
 	private function checkTradeStatus($trade_status){
-		return $trade_status == 'TRADE_FINISHED' || $trade_status == 'TRADE_SUCCESS';
+		return $trade_status == 1;
 	}
 
 }
