@@ -25,7 +25,7 @@ class AlipayController extends Controller{
 	}
 
 	public function actionAsync(){
-		if(!empty($_POST) && !isset($_POST['out_trade_no']) || !isset($_POST['trade_no']) || !isset($_POST['trade_status'])){
+		if(empty($_POST) && !isset($_POST['out_trade_no']) || !isset($_POST['trade_no']) || !isset($_POST['trade_status'])){
 			return false;
 		}
 

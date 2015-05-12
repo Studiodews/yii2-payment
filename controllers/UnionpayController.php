@@ -25,7 +25,7 @@ class UnionpayController extends Controller{
 	}
 
 	public function actionAsync(){
-		if(!empty($_POST) && !isset($_POST['orderId']) || !isset($_POST['queryId']) || !isset($_POST['respCode']) || !isset($_POST['respMsg'])){
+		if(empty($_POST) && !isset($_POST['orderId']) || !isset($_POST['queryId']) || !isset($_POST['respCode']) || !isset($_POST['respMsg'])){
 			return false;
 		}
 

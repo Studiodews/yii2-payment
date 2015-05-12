@@ -25,16 +25,16 @@ class BaifubaoController extends Controller{
 	}
 
 	public function actionAsync(){
-		if(!empty($_GET) && !isset($_GET['order_no']) && !isset($_GET['bfb_order_no']) && !isset($_GET['pay_result'])){
+		if(empty($_GET) && !isset($_GET['order_no']) && !isset($_GET['bfb_order_no']) && !isset($_GET['pay_result'])){
 			return false;
 		}
 
-		$id = $_POST['order_no'];
-		$tid = $_POST['bfb_order_no'];
-		$status = $this->checkTradeStatus($_POST['pay_result']) ? 1 : 0;
+		$id = $_GET['order_no'];
+		$tid = $_GET['bfb_order_no'];
+		$status = $this->checkTradeStatus($_GET['pay_result']) ? 1 : 0;
 		$manager = $this->module->manager;
 		$verified = $manager->verifySign($this->mode, true);
-		$manager->saveNotify($this->mode, $id, $tid, $status, $verified, $_POST);
+		$manager->saveNotify($this->mode, $id, $tid, $status, $verified, $_GET);
 
 		if(!$verified){
 			return false;
