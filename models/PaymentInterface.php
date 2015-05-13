@@ -1,6 +1,6 @@
 <?php
 
-namespace yii\payment;
+namespace yii\payment\models;
 
 interface PaymentInterface{
 
