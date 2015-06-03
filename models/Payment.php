@@ -24,26 +24,24 @@ class Payment extends ActiveRecord{
 	/**
 	 * 验证数据
 	 * @method validateData
-	 * @param {number} $id 记录id
 	 * @param {string} $hash 加密hash串
 	 * @param {string} $key 密钥
 	 * @return {boolean}
-	 * @example $this->validateData($id, $hash, $key);
+	 * @example $this->validateData($hash, $key);
 	 */
-	public function validateData($id, $hash, $key){
-		return Yii::$app->security->compareString($hash, $this->generateDataHash($key, $id));
+	public function validateData($hash, $key){
+		return Yii::$app->security->compareString($hash, $this->generateDataHash($key));
 	}
 
 	/**
 	 * 生成加密hash串
 	 * @method generateDataHash
 	 * @param {string} $key 密钥
-	 * @param {number} [$id=false] 记录id
 	 * @return {string}
-	 * @example $this->generateDataHash($key, $id);
+	 * @example $this->generateDataHash($key);
 	 */
-	public function generateDataHash($key, $id = false){
-		return hash_hmac('sha256', $this->getDataString($id === false ? $this->id : $id), $key, false);
+	public function generateDataHash($key){
+		return hash_hmac('sha256', $this->getDataString(), $key, false);
 	}
 
 	/**

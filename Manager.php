@@ -205,7 +205,7 @@ class Manager{
 	public function getPayUrl($id, $async, $sync, $hash = null){
 		$payUrl = null;
 		$payment = $this->getPayment($id);
-		if($this->hashkey === false || $payment->validateData($id, $hash, $this->hashkey)){
+		if($this->hashkey === false || $payment->validateData($hash, $this->hashkey)){
 			switch($payment->mode){
 				case 'wxpay':
 					$payUrl = $this->getWxpayPayUrl($async, $sync);
@@ -288,7 +288,7 @@ class Manager{
 			$this->getPayment($id);
 		}
 
-		return $this->payment === false ? '' : $this->payment->generateDataHash($this->hashkey);
+		return $this->payment === false ? null : $this->payment->generateDataHash($this->hashkey);
 	}
 
 	/**
