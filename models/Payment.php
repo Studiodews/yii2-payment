@@ -47,10 +47,9 @@ class Payment extends ActiveRecord{
 	/**
 	 * 获取数据加密串
 	 * @method getDataString
-	 * @param {number} $id 记录id
 	 * @return {string}
 	 */
-	private function getDataString($id){
+	private function getDataString(){
 		return $this->id . $this->oid . $this->amount . $this->mode;
 	}
 
