@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/6/4
+ * update: 2015/6/5
  * version: 0.0.1
  */
 
@@ -31,6 +31,9 @@ class Manager{
 
 	//配置支付方式
 	public $modes = [];
+
+	//通知地址的协议类型, 'http'或'https'
+	public $protocol = null;
 
 	//交易记录
 	private $payment = false;

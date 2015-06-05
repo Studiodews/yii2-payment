@@ -20,7 +20,7 @@ class TransactionController extends Controller{
 
 		$urlManager = \Yii::$app->urlManager;
 		$callbackRoute = DIRECTORY_SEPARATOR . $this->module->id . DIRECTORY_SEPARATOR . $mode . DIRECTORY_SEPARATOR;
-		$payUrl = $manager->getPayUrl($id, $urlManager->createAbsoluteUrl($callbackRoute . 'async'), $urlManager->createAbsoluteUrl($callbackRoute . 'sync'), $hash);
+		$payUrl = $manager->getPayUrl($id, $urlManager->createAbsoluteUrl([$callbackRoute . 'async'], $manager->protocol), $urlManager->createAbsoluteUrl([$callbackRoute . 'sync'], $manager->protocol), $hash);
 
 		if(empty($payUrl)){
 			throw new ErrorException('Payment order abnormal');
