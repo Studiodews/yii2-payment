@@ -29,11 +29,11 @@ class Manager{
 	//认证密钥
 	public $hashkey = false;
 
-	//配置支付方式
-	public $modes = [];
-
 	//通知地址的协议类型, 'http'或'https'
 	public $protocol = null;
+
+	//配置支付方式
+	public $modes = [];
 
 	//交易记录
 	private $payment = false;
