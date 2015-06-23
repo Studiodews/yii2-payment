@@ -19,7 +19,7 @@ class m150108_010000_payment extends Migration{
 			'url' => Schema::TYPE_TEXT . ' comment "商品展示url"',
 			'amount' => Schema::TYPE_BIGINT . ' unsigned not null default 0 comment "支付总额(分)"',
 			'mode' => Schema::TYPE_STRING . '(50) not null comment "支付方式"',
-			'tid' => Schema::TYPE_STRING . '(50) not null comment "第三方支付端流水号"',
+			'tid' => Schema::TYPE_STRING . '(50) comment "第三方支付端流水号"',
 			'completed_at' => Schema::TYPE_INTEGER . ' not null default 0 comment "支付完成时间"',
 			'created_at' => Schema::TYPE_INTEGER . ' not null comment "创建时间"',
 			'updated_at' => Schema::TYPE_INTEGER . ' not null comment "更新时间"',
