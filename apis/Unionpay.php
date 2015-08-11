@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/10
- * update: 2015/5/11
+ * update: 2015/8/11
  * version: 0.0.1
  */
 
@@ -54,6 +54,9 @@ class Unionpay{
 	//银联网关
 	private $api;
 
+	//商户号
+	private $merId;
+
 	//签名证书路径
 	private $signCertPath;
 
@@ -75,18 +78,21 @@ class Unionpay{
 	 */
 	public function __construct($config){
 		$this->config = $config;
+		$this->merId = $this->config['merId'];
+		$this->signCertPath = $this->config['signCertPath'];
+		$this->signCertPwd = $this->config['signCertPwd'];
 		$this->dev = isset($this->config['dev']) && $this->config['dev'];
 
 		if($this->dev){
 			$this->api = 'https://101.231.204.80:5000/gateway/api/';
-			$this->signCertPath = __DIR__ . '/unionpay_700000000000001_dev.pfx';
-			$this->signCertPwd = '000000';
 			$this->verifyCertPath = __DIR__ . '/unionpay_verify_dev.cer';
 		}else{
 			$this->api = 'https://gateway.95516.com/gateway/api/';
-			$this->signCertPath = $this->config['signCertPath'];
-			$this->signCertPwd = $this->config['signCertPwd'];
 			$this->verifyCertPath = __DIR__ . '/unionpay_verify_prod.cer';
+		}
+
+		if($this->isMobile() && isset($this->config['merIdM']) && isset($this->config['signCertPathM']) && isset($this->config['signCertPwdM'])){
+			$this->setMobileMerchant();
 		}
 	}
 
@@ -115,6 +121,10 @@ class Unionpay{
 
 		if(empty($data) || !isset($data['signature'])){
 			return false;
+		}
+
+		if(isset($this->config['merIdM']) && $this->config['merIdM'] == $data['merId']){
+			$this->setMobileMerchant();
 		}
 
 		$signature = base64_decode($data['signature']);
@@ -148,7 +158,7 @@ class Unionpay{
 			'signMethod' => $this->signMethod,
 			'channelType' => $this->getChannelType(),
 			'accessType' => $this->accessType,
-			'merId' => $this->config['merId'],
+			'merId' => $this->merId,
 			'orderId' => $orderId,
 			'txnTime' => date('YmdHis'),
 			'txnAmt' => $txnAmt,
@@ -158,6 +168,19 @@ class Unionpay{
 		$params['signature'] = $this->sign($params);
 
 		return $this->createPostForm($this->api . $this->frontTransReq, $params);
+	}
+
+	/**
+	 * 设置成移动端商户
+	 * @method setMobileMerchant
+	 * @since 0.0.1
+	 * @return {none}
+	 * @example $this->setMobileMerchant();
+	 */
+	private function setMobileMerchant(){
+		$this->merId = $this->config['merIdM'];
+		$this->signCertPath = $this->config['signCertPathM'];
+		$this->signCertPwd = $this->config['signCertPwdM'];
 	}
 
 	/**
@@ -279,7 +302,7 @@ class Unionpay{
 	 * @return {boolean}
 	 */
 	private function isMobile(){
-		return isset($_SERVER['HTTP_X_WAP_PROFILE']) || (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], 'wap')) || preg_match('/(nokia|sony|ericsson|mot|samsung|htc|sgh|lg|sharp|sie-|philips|panasonic|alcatel|lenovo|iphone|ipod|blackberry|meizu|android|netfront|symbian|ucweb|windowsce|palm|operamini|operamobi|openwave|nexusone|cldc|midp|wap|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT']));
+		return isset($_SERVER['HTTP_X_WAP_PROFILE']) || (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], 'wap')) || (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(nokia|sony|ericsson|mot|samsung|htc|sgh|lg|sharp|sie-|philips|panasonic|alcatel|lenovo|iphone|ipod|blackberry|meizu|android|netfront|symbian|ucweb|windowsce|palm|operamini|operamobi|openwave|nexusone|cldc|midp|wap|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])));
 	}
 
 }
