@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/6/5
+ * update: 2015/9/14
  * version: 0.0.1
  */
 
@@ -81,10 +81,9 @@ class Manager{
 		if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS'){
 			$this->payment->tid = $prepay['prepay_id'];
 			$this->payment->save();
-			$time = time();
 			$package = [
 				'appId' => $wxpayConfig['appid'],
-				'timeStamp' => $time,
+				'timeStamp' => strval(time()),
 				'nonceStr' => md5(mt_rand()),
 				'package' => 'prepay_id=' . $this->payment->tid,
 				'signType' => 'MD5',
