@@ -52,7 +52,7 @@ class UnionpayController extends Controller{
 			return '验签失败';
 		}
 
-		$request = Yii::$app->request;
+		$request = \Yii::$app->request;
 		if($this->checkTradeStatus($request->post('respCode'), $request->post('respMsg'))){
 			return $this->module->syncRoute ? $this->redirect([$this->module->syncRoute, 'id' => $request->post('orderId')]) : '付款成功';
 		}

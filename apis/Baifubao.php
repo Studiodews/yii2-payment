@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/12
- * update: 2015/8/11
+ * update: 2015/10/6
  * version: 0.0.1
  */
 
@@ -85,7 +85,7 @@ class Baifubao{
 		$sign = $data['sign'];
 		unset($data['sign']);
 
-		return Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrKsort($data))));
+		return \Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrKsort($data))));
 	}
 
 	/**

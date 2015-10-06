@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/9/14
+ * update: 2015/10/6
  * version: 0.0.1
  */
 
@@ -44,7 +44,7 @@ class Manager{
 	 * @since 0.0.1
 	 * @param {string} $code 票据
 	 * @return {string}
-	 * @example Yii::$app->payment->getOpenId($code);
+	 * @example \Yii::$app->payment->getOpenId($code);
 	 */
 	public function getOpenId($code){
 		return Wxpay::sdk($this->modes['wxpay'])->getOpenId($code);
@@ -57,7 +57,7 @@ class Manager{
 	 * @param {string} $return_url 回调地址
 	 * @param {string} [$state=null] 返回参数
 	 * @return {string}
-	 * @example Yii::$app->payment->getSnsapiUrl($return_url, $state);
+	 * @example \Yii::$app->payment->getSnsapiUrl($return_url, $state);
 	 */
 	public function getSnsapiUrl($return_url, $state = null){
 		return Wxpay::sdk($this->modes['wxpay'])->getSnsapiUrl($return_url, $state);
@@ -70,7 +70,7 @@ class Manager{
 	 * @param {string} $openid 用户标识
 	 * @param {string} $notify_url 异步通知地址
 	 * @return {array}
-	 * @example Yii::$app->payment->getJsPackage($openid, $notify_url);
+	 * @example \Yii::$app->payment->getJsPackage($openid, $notify_url);
 	 */
 	public function getJsPackage($openid, $notify_url){
 		$wxpayConfig = $this->modes['wxpay'];
@@ -100,7 +100,7 @@ class Manager{
 	 * @since 0.0.1
 	 * @param {string} $notify_url 异步通知地址
 	 * @return {string}
-	 * @example Yii::$app->payment->getPackage($notify_url);
+	 * @example \Yii::$app->payment->getPackage($notify_url);
 	 */
 	public function getPackage($notify_url){
 		$prepay = ['return_code' => 'FAIL', 'return_msg' => '签名验证失败'];
@@ -129,7 +129,7 @@ class Manager{
 	 * @param {boolean} $verified 消息验证结果
 	 * @param {string} $data 消息通知数据
 	 * @return {none}
-	 * @example Yii::$app->payment->saveNotify($mode, $pid, $tid, $status, $verified, $data);
+	 * @example \Yii::$app->payment->saveNotify($mode, $pid, $tid, $status, $verified, $data);
 	 */
 	public function saveNotify($mode, $pid, $tid, $status, $verified, $data){
 		$notify = new PaymentNotify;
@@ -150,7 +150,7 @@ class Manager{
 	 * @param {number} $id 支付单id
 	 * @param {string} $tid 第三方支付端流水号
 	 * @return {none}
-	 * @example Yii::$app->payment->complete($id);
+	 * @example \Yii::$app->payment->complete($id);
 	 */
 	public function complete($id, $tid){
 		$payment = $this->getPayment($id);
@@ -171,7 +171,7 @@ class Manager{
 	 * @param {string} [$mode] 支付方式
 	 * @param {boolean} [$async=false] 是否为异步通知
 	 * @return {boolean}
-	 * @example Yii::$app->payment->verifySign($mode, $async);
+	 * @example \Yii::$app->payment->verifySign($mode, $async);
 	 */
 	public function verifySign($mode, $async = false){
 		$result = false;
@@ -202,7 +202,7 @@ class Manager{
 	 * @param {string} $sync 同步通知地址
 	 * @param {string} [$hash=null] hash加密串
 	 * @return {string}
-	 * @example Yii::$app->payment->getPayUrl($id, $async, $sync, $hash);
+	 * @example \Yii::$app->payment->getPayUrl($id, $async, $sync, $hash);
 	 */
 	public function getPayUrl($id, $async, $sync, $hash = null){
 		$payUrl = null;
@@ -314,7 +314,7 @@ class Manager{
 	 * @param {string} [$description=null] 描述信息
 	 * @param {string} [$url=null] 商品展示url
 	 * @return {number}
-	 * @example Yii::$app->payment->create($oid, $amount, $mode, $title, $description, $url);
+	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $title, $description, $url);
 	 */
 	public function create($oid, $amount, $mode, $title = null, $description = null, $url = null){
 		if(empty($oid)){
@@ -333,7 +333,7 @@ class Manager{
 		$this->payment = new Payment;
 		$this->payment->id = $this->createId();
 		$this->payment->oid = $oid;
-		$this->payment->title = $title ? $title : Yii::$app->name;
+		$this->payment->title = $title ? $title : \Yii::$app->name;
 		$this->payment->amount = $amount;
 		$this->payment->description = $description;
 		$this->payment->url = $url;
@@ -360,7 +360,7 @@ class Manager{
 	 * @since 0.0.1
 	 * @param {string} $mode 支付方式
 	 * @return {boolean}
-	 * @example Yii::$app->payment->disabledMode($mode);
+	 * @example \Yii::$app->payment->disabledMode($mode);
 	 */
 	public function disabledMode($mode){
 		$mode = $this->modes[$mode];
@@ -374,7 +374,7 @@ class Manager{
 	 * @since 0.0.1
 	 * @param {number} $id 支付单id
 	 * @return {string}
-	 * @example Yii::$app->payment->getMode($id);
+	 * @example \Yii::$app->payment->getMode($id);
 	 */
 	public function getMode($id){
 		return $this->getPayment($id)->mode;
@@ -399,16 +399,59 @@ class Manager{
 	}
 
 	/**
+	 * 把金额转换成人民币大写
+	 * @method getCapitalCny
+	 * @since 0.0.1
+	 * @param {float} $price 以元为单位的金额数值
+	 * @return {string}
+	 * @example \Yii::$app->payment->getCapitalCny($price);
+	 */
+	public function getCapitalCny($price){
+		if($price > 999999999999999){
+			throw new ErrorException('Amount out of range');
+		}
+
+		$numbers = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+		$units_integer = ['元', '拾', '佰', '仟', '万', '拾', '佰', '仟', '亿', '拾', '佰', '仟', '万', '拾', '佰', '仟'];
+		$units_decimal = ['角', '分'];
+		$cny = [];
+		$_n = 0;
+
+		list($integers, $decimals) = explode('.', number_format($price, 2, '.', ''));
+		foreach(array_reverse(str_split($integers)) as $i => $n){
+			if($i > 0 && !($i % 4) && in_array($cny[0], $units_integer)){
+				array_shift($cny);
+			}
+			$_cny = $n > 0 || (!($i % 4) && $integers) ? ($n > 0 ? $n : null) . $units_integer[$i] : (!$_n && !$n ? null : $n);
+			if($_cny !== null){
+				array_unshift($cny, $_cny);
+			}
+			$_n = $n;
+		}
+		if($decimals > 0){
+			foreach(str_split($decimals) as $i => $n){
+				if($n > 0){
+					array_push($cny, $n . $units_decimal[$i]);
+				}
+			}
+		}else{
+			array_push($cny, '整');
+		}
+
+		return str_replace(array_keys($numbers), $numbers, implode('', $cny));
+	}
+
+	/**
 	 * 把金额转换成以元为单位
 	 * @method getYuans
 	 * @since 0.0.1
 	 * @param {number} $cents 以分为单位的金额
 	 * @param {boolean} [$float=false] 是否强制以浮点输出
-	 * @param {number} [$decimals=2] 规定多少个小数
+	 * @param {number} [$decimals=2] 规定多少位小数
 	 * @param {string} [$separator=''] 规定用作千位分隔符的字符串
 	 * @param {string} [$decimalpoint='.'] 规定用作小数点的字符串, 默认'.'
 	 * @return {number|float}
-	 * @example Yii::$app->payment->getYuans($cents, $float, $decimals, $separator, $decimalpoint);
+	 * @example \Yii::$app->payment->getYuans($cents, $float, $decimals, $separator, $decimalpoint);
 	 */
 	public function getYuans($cents, $float = false, $decimals = 2, $separator = '', $decimalpoint = '.'){
 		$yuans = $cents / 100;

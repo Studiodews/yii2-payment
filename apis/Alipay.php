@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/5/12
+ * update: 2015/10/6
  * version: 0.0.1
  */
 
@@ -85,7 +85,7 @@ class Alipay{
 		unset($data['sign']);
 		unset($data['sign_type']);
 
-		return Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrKsort($data)))) && $this->verifyNotify($data['notify_id']);
+		return \Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrKsort($data)))) && $this->verifyNotify($data['notify_id']);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Alipay{
 	 * @return {boolean}
 	 */
 	private function verifyNotify($notify_id){
-		$verify_url = Yii::$app->request->getIsSecureConnection() ? $this->https_verify_url : $this->http_verify_url;
+		$verify_url = \Yii::$app->request->getIsSecureConnection() ? $this->https_verify_url : $this->http_verify_url;
 		$verify_url .=  'partner=' . $this->config['partner'] . '&notify_id=' . $notify_id;
 		$result = $this->getHttpResponseGET($verify_url, __DIR__ . DIRECTORY_SEPARATOR . $this->pem);
 		

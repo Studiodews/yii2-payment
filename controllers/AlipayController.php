@@ -52,7 +52,7 @@ class AlipayController extends Controller{
 			return '验证失败';
 		}
 
-		$request = Yii::$app->request;
+		$request = \Yii::$app->request;
 		if($this->checkTradeStatus($request->get('trade_status'))){
 			return $this->module->syncRoute ? $this->redirect([$this->module->syncRoute, 'id' => $request->get('out_trade_no')]) : '付款成功';
 		}
