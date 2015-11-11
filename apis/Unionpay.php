@@ -117,20 +117,18 @@ class Unionpay{
 	 * @example $this->verifySign($async);
 	 */
 	public function verifySign($async = false){
-		$data = $_POST;
-
-		if(empty($data) || !isset($data['signature'])){
+		if(empty($_POST) || !isset($_POST['signature']) || !isset($_POST['merId'])){
 			return false;
 		}
 
-		if(isset($this->config['merIdM']) && $this->config['merIdM'] == $data['merId']){
+		if(isset($this->config['merIdM']) && $this->config['merIdM'] == $_POST['merId']){
 			$this->setMobileMerchant();
 		}
 
-		$signature = base64_decode($data['signature']);
-		unset($data['signature']);
+		$signature = base64_decode($_POST['signature']);
+		unset($_POST['signature']);
 
-		$params_sha1x16 = sha1($this->getQeuryString($this->arrKsort($data)), false);
+		$params_sha1x16 = sha1($this->getQeuryString($this->arrKsort($_POST)), false);
 		$pkey = file_get_contents(\Yii::getAlias($this->verifyCertPath));
 
 		return openssl_verify($params_sha1x16, $signature, $pkey, OPENSSL_ALGO_SHA1);

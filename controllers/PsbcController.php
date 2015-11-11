@@ -24,15 +24,17 @@ class PsbcController extends Controller{
 	}
 
 	public function actionSync(){
-		if(empty($_POST) && !isset($_POST['TranAbbr']) || $_POST['TranAbbr'] != '' || !isset($_POST['AcqSsn']) || !isset($_POST['TermSsn']) || !isset($_POST['RespCode'])){
+		if(empty($_POST) && !isset($_POST['Plain']) || !isset($_POST['Signature'])){
 			return false;
 		}
 
-		$id = $_POST['TermSsn'];
-		$tid = $_POST['AcqSsn'];
-		$status = $this->checkTradeStatus($_POST['RespCode']) ? 1 : 0;
+		$plain = json_decode('{"' . str_replace('=', '":"', str_replace('|', '","', trim($_POST['Plain'], '|'))) . '"}');
+		//return print_r($plain, true);
+		$id = $plain->TermSsn;
+		$tid = $plain->AcqSsn;
+		$status = $this->checkTradeStatus($plain->RespCode) ? 1 : 0;
 		$manager = $this->module->manager;
-		$verified = $manager->verifySign($this->mode, true);
+		$verified = $manager->verifySign($this->mode);
 		$manager->saveNotify($this->mode, $id, $tid, $status, $verified, $_POST);
 
 		if(!$verified){

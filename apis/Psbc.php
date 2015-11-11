@@ -85,19 +85,14 @@ class Psbc{
 	 * @example $this->verifySign();
 	 */
 	public function verifySign(){
-		$data = $_POST;
-
-		if(empty($data) || !isset($data['signature'])){
+		if(empty($_POST) || !isset($_POST['Plain']) || !isset($_POST['Signature'])){
 			return false;
 		}
-
-		$signature = base64_decode($data['signature']);
-		unset($data['signature']);
 
 		$cer = file_get_contents(\Yii::getAlias($this->verifyCertPath));
 		$_cer = openssl_x509_read($cer);
 		$pkey = openssl_get_publickey($_cer);
-		$result = openssl_verify($plain, hex2bin($signature), $pkey, OPENSSL_ALGO_MD5);
+		$result = openssl_verify($_POST['Plain'], hex2bin($_POST['Signature']), $pkey, OPENSSL_ALGO_MD5);
 		openssl_free_key($pkey);
 
 		return $result;
@@ -166,41 +161,6 @@ class Psbc{
 		$form[] = '</form><script type="text/javascript">document.' . $id. '.submit();</script>';
 
 		return implode('', $form);
-	}
-
-	/**
-	 * 获取queryString
-	 * @method getQeuryString
-	 * @since 0.0.1
-	 * @param {array} $arr 需转换数组
-	 * @return {string}
-	 */
-	private function getQeuryString($arr){
-		return urldecode(http_build_query($arr));
-	}
-
-	/**
-	 * 对签名参数进行数组排序
-	 * @method arrKsort
-	 * @since 0.0.1
-	 * @param {array} $arr 需排序数组
-	 * @return {array}
-	 */
-	private function arrKsort($arr){
-		ksort($arr);
-		reset($arr);
-
-		return $arr;
-	}
-
-	/**
-	 * 移动端检测
-	 * @method isMobile
-	 * @since 0.0.1
-	 * @return {boolean}
-	 */
-	private function isMobile(){
-		return isset($_SERVER['HTTP_X_WAP_PROFILE']) || (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], 'wap')) || (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(nokia|sony|ericsson|mot|samsung|htc|sgh|lg|sharp|sie-|philips|panasonic|alcatel|lenovo|iphone|ipod|blackberry|meizu|android|netfront|symbian|ucweb|windowsce|palm|operamini|operamobi|openwave|nexusone|cldc|midp|wap|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])));
 	}
 
 }
