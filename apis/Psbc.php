@@ -63,6 +63,10 @@ class Psbc{
 			$this->api = 'http://103.22.255.201:8443/psbcpay/main';
 			$this->verifyCertPath = __DIR__ . '/psbc_verify_prod.cer';
 		}
+
+		if($this->isMobile()){
+			$this->transName = 'WPER';
+		}
 	}
 
 	/**
@@ -161,6 +165,16 @@ class Psbc{
 		$form[] = '</form><script type="text/javascript">document.' . $id. '.submit();</script>';
 
 		return implode('', $form);
+	}
+
+	/**
+	 * 移动端检测
+	 * @method isMobile
+	 * @since 0.0.1
+	 * @return {boolean}
+	 */
+	private function isMobile(){
+		return isset($_SERVER['HTTP_X_WAP_PROFILE']) || (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], 'wap')) || (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(nokia|sony|ericsson|mot|samsung|htc|sgh|lg|sharp|sie-|philips|panasonic|alcatel|lenovo|iphone|ipod|blackberry|meizu|android|netfront|symbian|ucweb|windowsce|palm|operamini|operamobi|openwave|nexusone|cldc|midp|wap|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])));
 	}
 
 }
