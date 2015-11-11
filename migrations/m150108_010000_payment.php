@@ -14,6 +14,7 @@ class m150108_010000_payment extends Migration{
 		$this->createTable('{{%payment}}', [
 			'id' => Schema::TYPE_BIGINT . ' not null primary key comment "支付单id"',
 			'oid' => Schema::TYPE_TEXT . ' not null comment "订单id, 多个以英文逗号隔开"',
+			'type' => Schema::TYPE_BOOLEAN . ' not null default 1 comment "支付单类型: 1普通支付单"',
 			'title' => Schema::TYPE_STRING . '(50) not null comment "订单名称"',
 			'description' => Schema::TYPE_STRING . ' comment "描述信息"',
 			'url' => Schema::TYPE_TEXT . ' comment "商品展示url"',

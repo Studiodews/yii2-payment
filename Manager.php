@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/10/6
+ * update: 2015/11/10
  * version: 0.0.1
  */
 
@@ -20,6 +20,7 @@ use yii\payment\apis\Wxpay;
 use yii\payment\apis\Alipay;
 use yii\payment\apis\Unionpay;
 use yii\payment\apis\Baifubao;
+use yii\payment\apis\Psbc;
 
 class Manager{
 
@@ -188,6 +189,9 @@ class Manager{
 			case 'baifubao':
 				$result = Baifubao::sdk($this->modes[$mode])->verifySign($async);
 				break;
+			case 'psbc':
+				$result = Psbc::sdk($this->modes[$mode])->verifySign();
+				break;
 		}
 
 		return $result;
@@ -221,10 +225,24 @@ class Manager{
 				case 'baifubao':
 					$payUrl = $this->getBaifubaoUrl($async, $sync);
 					break;
+				case 'psbc':
+					$payUrl = $this->getPsbcUrl($sync);
+					break;
 			}
 		}
 
 		return $payUrl;
+	}
+
+	/**
+	 * 使用百付宝进行支付
+	 * @method getPsbcUrl
+	 * @since 0.0.1
+	 * @param {string} $sync 通知地址
+	 * @return {string}
+	 */
+	private function getPsbcUrl($sync){
+		return Psbc::sdk($this->modes['psbc'])->getPayUrl($sync, $this->payment->id, $this->getYuans($this->payment->amount));
 	}
 
 	/**

@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/10
- * update: 2015/8/11
+ * update: 2015/11/11
  * version: 0.0.1
  */
 
@@ -129,9 +129,11 @@ class Unionpay{
 
 		$signature = base64_decode($data['signature']);
 		unset($data['signature']);
-		$params_sha1x16 = sha1($this->getQeuryString($this->arrKsort($data)), false);
 
-		return openssl_verify($params_sha1x16, $signature, $this->getPulbicKey(), OPENSSL_ALGO_SHA1);
+		$params_sha1x16 = sha1($this->getQeuryString($this->arrKsort($data)), false);
+		$pkey = file_get_contents(\Yii::getAlias($this->verifyCertPath));
+
+		return openssl_verify($params_sha1x16, $signature, $pkey, OPENSSL_ALGO_SHA1);
 	}
 
 	/**
@@ -196,33 +198,12 @@ class Unionpay{
 		}
 
 		$params_sha1x16 = sha1($this->getQeuryString($this->arrKsort($params)), false);
-		$private_key = $this->getPrivateKey();
-		$sign_falg = openssl_sign($params_sha1x16, $signature, $private_key, OPENSSL_ALGO_SHA1);
-
-		return base64_encode($signature);
-	}
-
-	/**
-	 * 获取公钥
-	 * @method getPulbicKey
-	 * @since 0.0.1
-	 * @return {string}
-	 */
-	private function getPulbicKey(){
-		return file_get_contents(\Yii::getAlias($this->verifyCertPath));
-	}
-
-	/**
-	 * 获取私钥
-	 * @method getPrivateKey
-	 * @since 0.0.1
-	 * @return {string}
-	 */
-	private function getPrivateKey(){
 		$pkcs12 = file_get_contents(\Yii::getAlias($this->signCertPath));
 		openssl_pkcs12_read($pkcs12, $certs, $this->signCertPwd);
+		$pkey = $certs['pkey'];
+		$sign_falg = openssl_sign($params_sha1x16, $signature, $pkey, OPENSSL_ALGO_SHA1);
 
-		return $certs['pkey'];
+		return base64_encode($signature);
 	}
 
 	/**
@@ -232,8 +213,8 @@ class Unionpay{
 	 * @return {string}
 	 */
 	private function getCertId(){
-		$pkcs12certdata = file_get_contents(\Yii::getAlias($this->signCertPath));
-		openssl_pkcs12_read($pkcs12certdata, $certs, $this->signCertPwd);
+		$pkcs12 = file_get_contents(\Yii::getAlias($this->signCertPath));
+		openssl_pkcs12_read($pkcs12, $certs, $this->signCertPwd);
 		$x509data = $certs['cert'];
 		openssl_x509_read($x509data);
 		$certdata = openssl_x509_parse($x509data);
