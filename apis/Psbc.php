@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/11/10
- * update: 2015/11/11
+ * update: 2015/11/12
  * version: 0.0.1
  */
 
@@ -60,7 +60,7 @@ class Psbc{
 			$this->api = 'http://103.22.255.201:8443/psbcpay/main';
 			$this->verifyCertPath = __DIR__ . '/psbc_verify_dev.cer';
 		}else{
-			$this->api = 'http://103.22.255.201:8443/psbcpay/main';
+			$this->api = 'https://pbank.psbc.com/psbcpay/main';
 			$this->verifyCertPath = __DIR__ . '/psbc_verify_prod.cer';
 		}
 
