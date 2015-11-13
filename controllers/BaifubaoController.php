@@ -25,7 +25,7 @@ class BaifubaoController extends Controller{
 	}
 
 	public function actionAsync(){
-		if(empty($_GET) && !isset($_GET['order_no']) && !isset($_GET['bfb_order_no']) && !isset($_GET['pay_result'])){
+		if(empty($_GET) || !isset($_GET['order_no']) || !isset($_GET['bfb_order_no']) || !isset($_GET['pay_result'])){
 			return false;
 		}
 

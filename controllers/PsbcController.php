@@ -24,12 +24,11 @@ class PsbcController extends Controller{
 	}
 
 	public function actionSync(){
-		if(empty($_POST) && !isset($_POST['Plain']) || !isset($_POST['Signature'])){
+		if(empty($_POST) || !isset($_POST['Plain']) || !isset($_POST['Signature'])){
 			return false;
 		}
 
 		$plain = json_decode('{"' . str_replace('=', '":"', str_replace('|', '","', trim($_POST['Plain'], '|'))) . '"}');
-		//return print_r($plain, true);
 		$id = $plain->TermSsn;
 		$tid = $plain->AcqSsn;
 		$status = $this->checkTradeStatus($plain->RespCode) ? 1 : 0;
