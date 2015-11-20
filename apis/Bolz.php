@@ -1,11 +1,11 @@
 <?php
 /*!
- * yii2 extension - 支付系统 - 支付宝sdk
+ * yii2 extension - 支付系统 - 柳州银行sdk
  * xiewulong <xiewulong@vip.qq.com>
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
- * create: 2015/1/10
- * update: 2015/11/19
+ * create: 2015/11/17
+ * update: 2015/11/20
  * version: 0.0.1
  */
 
@@ -13,34 +13,30 @@ namespace yii\payment\apis;
 
 use Yii;
 
-class Alipay{
+class Bolz{
 
-	//支付宝网关
-	private $api = 'https://mapi.alipay.com/gateway.do?';
-
-	//https形式消息验证地址
-	private $https_verify_url = 'https://mapi.alipay.com/gateway.do?service=notify_verify&';
-
-	//http形式消息验证地址
-	private $http_verify_url = 'http://notify.alipay.com/trade/notify_query.do?';
+	//柳州银行网关
+	private $api = 'https://epay.bolz.cn/epaygate/';
 
 	//即时到账交易接口参数
 	private $params = [
-		'service' => 'create_direct_pay_by_user',	//服务名称
-		'payment_type' => 1,	//支付类型
-		'anti_phishing_key' => null,	//防钓鱼时间戳
-		'exter_invoke_ip' => null,	//客户端的IP地址
-		'_input_charset' => 'utf-8',	//字符编码格式
+		'service' => 'pay_service',	//接口名称
+		'trade_mode' => '0002',	//交易类型, 0001担保支付, 0002即时到账
+		'fee_type' => 1,	//币种
+		'trans_channel' => 'pc',	//支付渠道, pc为PC端, mb为移动端
 	];
 
 	//验证方式
 	private $sign_type = 'MD5';
 
-	//ssl证书名
-	private $pem = 'Alipay.pem';
-
 	//配置参数
 	private $config;
+
+	//form表单前缀
+	private $name_pre = 'bolz_form_';
+
+	//开发模式
+	private $dev;
 
 	/**
 	 * 构造器
@@ -51,6 +47,15 @@ class Alipay{
 	 */
 	public function __construct($config){
 		$this->config = $config;
+		$this->dev = isset($this->config['dev']) && $this->config['dev'];
+
+		if($this->dev){
+			$this->api = 'http://testepay.bolz.cn:4080/epaygate/';
+		}
+
+		if($this->isMobile()){
+			$this->params['trans_channel'] = 'mb';
+		}
 	}
 
 	/**
@@ -85,7 +90,7 @@ class Alipay{
 		unset($data['sign']);
 		unset($data['sign_type']);
 
-		return \Yii::$app->security->compareString($sign, $this->sign($this->getQeuryString($this->arrKsort($data)))) && $this->verifyNotify($data['notify_id']);
+		return \Yii::$app->security->compareString($sign, $this->sign($data)) && $this->verifyNotify($data['notify_id']);
 	}
 
 	/**
@@ -103,8 +108,7 @@ class Alipay{
 	 * @example $this->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url);
 	 */
 	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null){
-		return $this->buildRequest(array_merge([
-			'seller_email' => $this->config['seller_email'],
+		$params = array_merge([
 			'partner' => $this->config['partner'],
 			'notify_url' => $notify_url,
 			'return_url' => $return_url,
@@ -112,8 +116,14 @@ class Alipay{
 			'subject' => $subject,
 			'total_fee' => $total_fee,
 			'body' => $body,
-			'show_url' => $show_url,
-		], $this->params));
+			'show_url' => $show_url ? : \Yii::$app->request->hostInfo,
+			'spbill_create_ip' => \Yii::$app->request->userIP,
+		], $this->params);
+
+		$params['sign'] = $this->sign($params);
+		$params['sign_type'] = $this->sign_type;
+
+		return $this->createPostForm($params);
 	}
 
 	/**
@@ -124,9 +134,7 @@ class Alipay{
 	 * @return {boolean}
 	 */
 	private function verifyNotify($notify_id){
-		$verify_url = \Yii::$app->request->getIsSecureConnection() ? $this->https_verify_url : $this->http_verify_url;
-		$verify_url .=  'partner=' . $this->config['partner'] . '&notify_id=' . $notify_id;
-		$result = $this->getHttpResponseGET($verify_url, __DIR__ . DIRECTORY_SEPARATOR . $this->pem);
+		$result = $this->getHttpResponseGET($this->api . 'notifyIdQuery.htm?partner=' . $this->config['partner'] . '&notify_id=' . $notify_id);
 		
 		return preg_match("/true$/i", $result);
 	}
@@ -136,16 +144,12 @@ class Alipay{
 	 * @method getHttpResponseGET
 	 * @since 0.0.1
 	 * @param {string} $url 指定URL完整路径地址
-	 * @param {string} $cacert_url 指定ssl证书绝对路径
 	 * @return {string}
 	 */
-	private function getHttpResponseGET($url, $cacert_url) {
+	private function getHttpResponseGET($url) {
 		$curl = curl_init($url);
 		curl_setopt($curl, CURLOPT_HEADER, 0);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($curl, CURLOPT_CAINFO, $cacert_url);
 		$responseText = curl_exec($curl);
 		curl_close($curl);
 
@@ -153,32 +157,37 @@ class Alipay{
 	}
 
 	/**
-	 * 创建支付链接
-	 * @method buildRequest
+	 * 创建待提交post表单
+	 * @method createPostForm
+	 * @since 0.0.1
+	 * @param {array} $params 参数
+	 * @return {string}
+	 */
+	private function createPostForm($params){
+		$id = $this->name_pre . uniqId();
+		$form = ['<form action="' . $this->api . 'pay.htm" method="post" name="' . $id . '">'];
+		foreach($params as $name => $value){
+			$form[] = '<input type="hidden" name="' . $name . '" value="' . $value . '" />';
+		}
+		$form[] = '</form><script type="text/javascript">document.' . $id. '.submit();</script>';
+
+		return implode('', $form);
+	}
+
+	/**
+	 * 对参数进行签名
+	 * @method sign
 	 * @since 0.0.1
 	 * @param {array} $params 参数数组
 	 * @return {string}
 	 */
-	private function buildRequest($params){
-		$queryString = $this->getQeuryString($this->arrKsort($params));
-
-		return $this->api . $queryString . '&sign=' . $this->sign($queryString) . '&sign_type=' . $this->sign_type;
-	}
-
-	/**
-	 * 对queryString进行签名并返回相应的string
-	 * @method sign
-	 * @since 0.0.1
-	 * @param {string} $queryString query string
-	 * @return {string}
-	 */
-	private function sign($queryString){
-		$_queryString = $queryString . $this->config['key'];
+	private function sign($params){
+		$queryString = $this->getQeuryString($this->arrKsort($params)) . $this->config['key'];
 
 		$sign = '';
 		switch($this->sign_type){
 			case 'MD5':
-				$sign = md5($_queryString);
+				$sign = md5($queryString);
 				break;
 		}
 
@@ -208,6 +217,16 @@ class Alipay{
 		reset($arr);
 
 		return $arr;
+	}
+
+	/**
+	 * 移动端检测
+	 * @method isMobile
+	 * @since 0.0.1
+	 * @return {boolean}
+	 */
+	private function isMobile(){
+		return isset($_SERVER['HTTP_X_WAP_PROFILE']) || (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], 'wap')) || (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(nokia|sony|ericsson|mot|samsung|htc|sgh|lg|sharp|sie-|philips|panasonic|alcatel|lenovo|iphone|ipod|blackberry|meizu|android|netfront|symbian|ucweb|windowsce|palm|operamini|operamobi|openwave|nexusone|cldc|midp|wap|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])));
 	}
 
 }

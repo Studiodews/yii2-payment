@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/11/10
+ * update: 2015/11/17
  * version: 0.0.1
  */
 
@@ -21,6 +21,7 @@ use yii\payment\apis\Alipay;
 use yii\payment\apis\Unionpay;
 use yii\payment\apis\Baifubao;
 use yii\payment\apis\Psbc;
+use yii\payment\apis\Bolz;
 
 class Manager{
 
@@ -160,9 +161,8 @@ class Manager{
 		}
 		$payment->tid = $tid;
 		$payment->completed_at = time();
-		$payment->save();
 		
-		return true;
+		return $payment->save();
 	}
 
 	/**
@@ -191,6 +191,9 @@ class Manager{
 				break;
 			case 'psbc':
 				$result = Psbc::sdk($this->modes[$mode])->verifySign();
+				break;
+			case 'bolz':
+				$result = Bolz::sdk($this->modes[$mode])->verifySign($async);
 				break;
 		}
 
@@ -228,6 +231,9 @@ class Manager{
 				case 'psbc':
 					$payUrl = $this->getPsbcUrl($sync);
 					break;
+				case 'bolz':
+					$payUrl = $this->getBolzPayUrl($async, $sync);
+					break;
 			}
 		}
 
@@ -235,7 +241,19 @@ class Manager{
 	}
 
 	/**
-	 * 使用百付宝进行支付
+	 * 使用柳州银行进行支付
+	 * @method getBolzPayUrl
+	 * @since 0.0.1
+	 * @param {string} $async 异步通知地址
+	 * @param {string} $sync 同步通知地址
+	 * @return {string}
+	 */
+	private function getBolzPayUrl($async, $sync){
+		return Bolz::sdk($this->modes['bolz'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
+	}
+
+	/**
+	 * 使用中国邮政储蓄银行进行支付
 	 * @method getPsbcUrl
 	 * @since 0.0.1
 	 * @param {string} $sync 通知地址
