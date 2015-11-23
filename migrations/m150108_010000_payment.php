@@ -22,7 +22,6 @@ class m150108_010000_payment extends Migration{
 			'mode' => Schema::TYPE_STRING . '(50) not null comment "支付方式"',
 			'tid' => Schema::TYPE_STRING . '(50) comment "第三方支付端流水号"',
 			'completed_at' => Schema::TYPE_INTEGER . ' not null default 0 comment "支付完成时间"',
-			'abnormal' => Schema::TYPE_BOOLEAN . ' not null default 0 comment "异常标记: 0正常, 1异常"',
 			'created_at' => Schema::TYPE_INTEGER . ' not null comment "创建时间"',
 			'updated_at' => Schema::TYPE_INTEGER . ' not null comment "更新时间"',
 		], $tableOptions . ' comment="支付单"');
