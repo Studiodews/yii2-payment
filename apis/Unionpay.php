@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/10
- * update: 2015/11/11
+ * update: 2015/12/2
  * version: 0.0.1
  */
 
@@ -88,7 +88,7 @@ class Unionpay{
 			$this->verifyCertPath = __DIR__ . '/unionpay_verify_dev.cer';
 		}else{
 			$this->api = 'https://gateway.95516.com/gateway/api/';
-			$this->verifyCertPath = __DIR__ . '/unionpay_verify_prod.cer';
+			$this->verifyCertPath = __DIR__ . (time() < strtotime('2015-12-09') ? '/unionpay_verify_prod.cer' : '/unionpay_verify_prod_new.cer');
 		}
 
 		if($this->isMobile() && isset($this->config['merIdM']) && isset($this->config['signCertPathM']) && isset($this->config['signCertPwdM'])){
@@ -217,7 +217,7 @@ class Unionpay{
 		openssl_x509_read($x509data);
 		$certdata = openssl_x509_parse($x509data);
 
-		return $certdata ['serialNumber'];
+		return $certdata['serialNumber'];
 	}
 
 	/**
