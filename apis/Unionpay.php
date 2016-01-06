@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/10
- * update: 2015/12/2
+ * update: 2016/1/6
  * version: 0.0.1
  */
 
