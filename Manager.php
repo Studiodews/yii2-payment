@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2015/11/17
+ * update: 2016/1/6
  * version: 0.0.1
  */
 
@@ -349,10 +349,11 @@ class Manager{
 	 * @param {string} [$title=null] 订单名称
 	 * @param {string} [$description=null] 描述信息
 	 * @param {string} [$url=null] 商品展示url
+	 * @param {int} [$type=1] 支付单类型
 	 * @return {number}
-	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $title, $description, $url);
+	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $title, $description, $url, $type);
 	 */
-	public function create($oid, $amount, $mode, $title = null, $description = null, $url = null){
+	public function create($oid, $amount, $mode, $title = null, $description = null, $url = null, $type = 1){
 		if(empty($oid)){
 			throw new ErrorException('Order id must be requied');
 		}
@@ -369,6 +370,7 @@ class Manager{
 		$this->payment = new Payment;
 		$this->payment->id = $this->createId();
 		$this->payment->oid = $oid;
+		$this->payment->type = $type;
 		$this->payment->title = $title ? $title : \Yii::$app->name;
 		$this->payment->amount = $amount;
 		$this->payment->description = $description;

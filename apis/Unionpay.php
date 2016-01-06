@@ -88,7 +88,7 @@ class Unionpay{
 			$this->verifyCertPath = __DIR__ . '/unionpay_verify_dev.cer';
 		}else{
 			$this->api = 'https://gateway.95516.com/gateway/api/';
-			$this->verifyCertPath = __DIR__ . (time() < strtotime('2015-12-09') ? '/unionpay_verify_prod.cer' : '/unionpay_verify_prod_new.cer');
+			$this->verifyCertPath = __DIR__ . '/unionpay_verify_prod.cer';
 		}
 
 		if($this->isMobile() && isset($this->config['merIdM']) && isset($this->config['signCertPathM']) && isset($this->config['signCertPwdM'])){
