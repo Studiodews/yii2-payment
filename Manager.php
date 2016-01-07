@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2016/1/6
+ * update: 2016/1/7
  * version: 0.0.1
  */
 
@@ -56,13 +56,12 @@ class Manager{
 	 * 获取微信网页授权地址
 	 * @method getSnsapiUrl
 	 * @since 0.0.1
-	 * @param {string} $return_url 回调地址
-	 * @param {string} [$state=null] 返回参数
+	 * @param {string} $redirect_uri 回调地址
 	 * @return {string}
-	 * @example \Yii::$app->payment->getSnsapiUrl($return_url, $state);
+	 * @example \Yii::$app->payment->getSnsapiUrl($redirect_uri);
 	 */
-	public function getSnsapiUrl($return_url, $state = null){
-		return Wxpay::sdk($this->modes['wxpay'])->getSnsapiUrl($return_url, $state);
+	public function getSnsapiUrl($redirect_uri){
+		return Wxpay::sdk($this->modes['wxpay'])->getSnsapiUrl($redirect_uri);
 	}
 
 	/**

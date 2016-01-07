@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/3/28
- * update: 2015/3/28
+ * update: 2016/1/7
  * version: 0.0.1
  */
 
@@ -78,19 +78,19 @@ class Wxpay{
 	 * 获取网页授权地址
 	 * @method getSnsapiUrl
 	 * @since 0.0.1
-	 * @param {string} $return_url 回调地址
+	 * @param {string} $redirect_uri 回调地址
+	 * @param {string} [$scope='snsapi_base'] 授权作用域
 	 * @param {string} [$state=null] 返回参数
-	 * @param {string} [$scope='snsapi_userinfo'] 授权类型
 	 * @return {array}
-	 * @example $this->getSnsapiUrl($return_url, $state, $scope);
+	 * @example $this->getSnsapiUrl($redirect_uri, $scope, $state);
 	 */
-	public function getSnsapiUrl($return_url, $state = null, $scope = 'snsapi_userinfo'){
+	public function getSnsapiUrl($redirect_uri, $scope = 'snsapi_base', $state = null){
 		return $this->snsapi . http_build_query([
 			'appid' => $this->config['appid'],
-			'redirect_uri' => $return_url,
+			'redirect_uri' => $redirect_uri,
 			'response_type' => 'code',
 			'scope' => $scope,
-			'state' => empty($state) ? $this->createNonceStr() : $state,
+			'state' => $state,
 		]) . '#wechat_redirect';
 	}
 
