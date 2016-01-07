@@ -37,7 +37,7 @@ class Alipay{
 	private $sign_type = 'MD5';
 
 	//ssl证书名
-	private $pem = 'Alipay.pem';
+	private $pem = 'alipay_cacert.pem';
 
 	//配置参数
 	private $config;
