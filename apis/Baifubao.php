@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/12
- * update: 2015/10/6
+ * update: 2016/1/11
  * version: 0.0.1
  */
 
@@ -48,6 +48,7 @@ class Baifubao{
 	 */
 	public function __construct($config){
 		$this->config = $config;
+
 		$this->api = $this->isMobile() ? 'https://www.baifubao.com/api/0/pay/0/wapdirect?' : 'https://www.baifubao.com/api/0/pay/0/direct?';
 	}
 

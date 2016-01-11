@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2016/1/7
+ * update: 2016/1/11
  * version: 0.0.1
  */
 
@@ -18,15 +18,9 @@ class Alipay{
 	//支付宝网关
 	private $api = 'https://mapi.alipay.com/gateway.do?';
 
-	//https形式消息验证地址
-	private $https_verify_url = 'https://mapi.alipay.com/gateway.do?service=notify_verify&';
-
-	//http形式消息验证地址
-	private $http_verify_url = 'http://notify.alipay.com/trade/notify_query.do?';
-
 	//即时到账交易接口参数
 	private $params = [
-		'service' => 'create_direct_pay_by_user',	//服务名称
+		'service' => 'create_direct_pay_by_user',	//接口名称
 		'payment_type' => 1,	//支付类型
 		'anti_phishing_key' => null,	//防钓鱼时间戳
 		'exter_invoke_ip' => null,	//客户端的IP地址
@@ -36,8 +30,8 @@ class Alipay{
 	//验证方式
 	private $sign_type = 'MD5';
 
-	//ssl证书名
-	private $pem = 'alipay_cacert.pem';
+	//ssl证书
+	private $cacert = 'alipay_cacert.pem';
 
 	//配置参数
 	private $config;
@@ -51,6 +45,10 @@ class Alipay{
 	 */
 	public function __construct($config){
 		$this->config = $config;
+
+		if($this->isMobile()){
+			$this->params['service'] = 'alipay.wap.create.direct.pay.by.user';
+		}
 	}
 
 	/**
@@ -104,7 +102,7 @@ class Alipay{
 	 */
 	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null){
 		return $this->buildRequest(array_merge([
-			'seller_email' => $this->config['seller_email'],
+			'seller_id' => $this->config['partner'],
 			'partner' => $this->config['partner'],
 			'notify_url' => $notify_url,
 			'return_url' => $return_url,
@@ -124,9 +122,7 @@ class Alipay{
 	 * @return {boolean}
 	 */
 	private function verifyNotify($notify_id){
-		$verify_url = \Yii::$app->request->getIsSecureConnection() ? $this->https_verify_url : $this->http_verify_url;
-		$verify_url .=  'partner=' . $this->config['partner'] . '&notify_id=' . $notify_id;
-		$result = $this->getHttpResponseGET($verify_url, __DIR__ . DIRECTORY_SEPARATOR . $this->pem);
+		$result = $this->getHttpResponseGET($this->api . 'service=notify_verify&partner=' . $this->config['partner'] . '&notify_id=' . $notify_id, __DIR__ . DIRECTORY_SEPARATOR . $this->cacert);
 		
 		return preg_match("/true$/i", $result);
 	}
@@ -208,6 +204,16 @@ class Alipay{
 		reset($arr);
 
 		return $arr;
+	}
+
+	/**
+	 * 移动端检测
+	 * @method isMobile
+	 * @since 0.0.1
+	 * @return {boolean}
+	 */
+	private function isMobile(){
+		return isset($_SERVER['HTTP_X_WAP_PROFILE']) || (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], 'wap')) || (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(nokia|sony|ericsson|mot|samsung|htc|sgh|lg|sharp|sie-|philips|panasonic|alcatel|lenovo|iphone|ipod|blackberry|meizu|android|netfront|symbian|ucweb|windowsce|palm|operamini|operamobi|openwave|nexusone|cldc|midp|wap|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])));
 	}
 
 }
