@@ -97,11 +97,11 @@ class Alipay{
 	 * @param {number} $total_fee 付款金额
 	 * @param {string} [$body=null] 订单描述
 	 * @param {string} [$show_url=null] 商品展示地址
-	 * @param {string} [$it_b_pay=null] 超时时间
+	 * @param {int} [$expired_at=0] 过期时间
 	 * @return {string}
-	 * @example $this->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url, $it_b_pay);
+	 * @example $this->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url, $expired_at);
 	 */
-	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null, $it_b_pay = null){
+	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null, $expired_at = 0){
 		return $this->buildRequest(array_merge([
 			'seller_id' => $this->config['partner'],
 			'partner' => $this->config['partner'],
@@ -112,7 +112,7 @@ class Alipay{
 			'total_fee' => $total_fee,
 			'body' => $body,
 			'show_url' => $show_url,
-			'it_b_pay' => $it_b_pay,
+			'it_b_pay' => $expired_at > 0 ? ($this->isMobile ? date('Y-m-d H:i:s', $expired_at) : max(1, floor(($expired_at - time()) / 60)) . 'm') : null,
 		], $this->params));
 	}
 

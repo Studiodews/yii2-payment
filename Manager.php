@@ -295,7 +295,7 @@ class Manager{
 	 * @return {string}
 	 */
 	private function getAlipayPayUrl($async, $sync){
-		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url, $this->payment->expired_at > 0 ? date('Y-m-d H:i', $this->payment->expired_at) : null);
+		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url, $this->payment->expired_at);
 	}
 
 	/**
