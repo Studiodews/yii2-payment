@@ -169,7 +169,7 @@ class Unionpay{
 
 		//设置过期时间
 		if($expired_at > 0){
-			$params['orderTimeout'] = ($expired_at - time()) * 1000;
+			//$params['orderTimeout'] = ($expired_at - time()) * 1000;
 			$params['payTimeout'] = date('YmdHis', $expired_at);
 		}
 
