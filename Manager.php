@@ -346,14 +346,14 @@ class Manager{
 	 * @param {number} $amount 交易总额(分)
 	 * @param {string} $mode 支付方式
 	 * @param {string} $title 订单名称
-	 * @param {int} [$type=1] 支付单类型
 	 * @param {int} $expired_at 过期时间
+	 * @param {int} [$type=1] 支付单类型
 	 * @param {string} [$description=null] 描述信息
 	 * @param {string} [$url=null] 商品展示url
 	 * @return {number}
-	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $title, $type, $expired_at, $description, $url);
+	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $title, $expired_at, $type, $description, $url);
 	 */
-	public function create($oid, $amount, $mode, $title, $type = 1, $expired_at = 0, $description = null, $url = null){
+	public function create($oid, $amount, $mode, $title, $expired_at = 0, $type = 1, $description = null, $url = null){
 		if(empty($oid)){
 			throw new ErrorException('Order id must be requied');
 		}
