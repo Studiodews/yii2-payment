@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2016/1/7
+ * update: 2016/1/12
  * version: 0.0.1
  */
 
@@ -248,7 +248,7 @@ class Manager{
 	 * @return {string}
 	 */
 	private function getBolzPayUrl($async, $sync){
-		return Bolz::sdk($this->modes['bolz'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
+		return Bolz::sdk($this->modes['bolz'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url, $this->payment->expired_at);
 	}
 
 	/**
@@ -271,7 +271,7 @@ class Manager{
 	 * @return {string}
 	 */
 	private function getBaifubaoUrl($async, $sync){
-		return Baifubao::sdk($this->modes['baifubao'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->payment->amount);
+		return Baifubao::sdk($this->modes['baifubao'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->payment->amount, $this->payment->expired_at);
 	}
 
 	/**
@@ -283,7 +283,7 @@ class Manager{
 	 * @return {string}
 	 */
 	private function getUnionPayUrl($async, $sync){
-		return Unionpay::sdk($this->modes['unionpay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->amount);
+		return Unionpay::sdk($this->modes['unionpay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->amount, $this->payment->expired_at);
 	}
 
 	/**
@@ -295,7 +295,7 @@ class Manager{
 	 * @return {string}
 	 */
 	private function getAlipayPayUrl($async, $sync){
-		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url);
+		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url, $this->payment->expired_at > 0 ? date('Y-m-d H:i', $this->payment->expired_at) : null);
 	}
 
 	/**
@@ -345,14 +345,15 @@ class Manager{
 	 * @param {number} $oid 订单id
 	 * @param {number} $amount 交易总额(分)
 	 * @param {string} $mode 支付方式
+	 * @param {int} [$type=1] 支付单类型
+	 * @param {int} $expired_at 过期时间
 	 * @param {string} [$title=null] 订单名称
 	 * @param {string} [$description=null] 描述信息
 	 * @param {string} [$url=null] 商品展示url
-	 * @param {int} [$type=1] 支付单类型
 	 * @return {number}
-	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $title, $description, $url, $type);
+	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $type, $expired_at, $title, $description, $url);
 	 */
-	public function create($oid, $amount, $mode, $title = null, $description = null, $url = null, $type = 1){
+	public function create($oid, $amount, $mode, $type = 1, $expired_at = 0, $title = null, $description = null, $url = null){
 		if(empty($oid)){
 			throw new ErrorException('Order id must be requied');
 		}
@@ -375,6 +376,7 @@ class Manager{
 		$this->payment->description = $description;
 		$this->payment->url = $url;
 		$this->payment->mode = $mode;
+		$this->payment->expired_at = $expired_at;
 		$this->payment->save();
 
 		return $this;

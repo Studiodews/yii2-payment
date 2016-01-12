@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/12
- * update: 2016/1/11
+ * update: 2016/1/12
  * version: 0.0.1
  */
 
@@ -75,13 +75,9 @@ class Baifubao{
 	public function verifySign($async = false){
 		$data = $_GET;
 
-		echo 2;
-
 		if(empty($data) || !isset($data['sp_no']) || !isset($data['order_no']) || !isset($data['bfb_order_no']) || !isset($data['bfb_order_create_time']) || !isset($data['pay_time']) || !isset($data['pay_type']) || !isset($data['total_amount']) || !isset($data['fee_amount']) || !isset($data['currency']) || !isset($data['pay_result']) || !isset($data['input_charset']) || !isset($data['version']) || !isset($data['sign']) || !isset($data['sign_method']) || $data['sp_no'] != $this->config['sp_no']){
 			return false;
 		}
-
-		echo 1;
 
 		$sign = $data['sign'];
 		unset($data['sign']);
@@ -98,10 +94,11 @@ class Baifubao{
 	 * @param {string} $order_no 商户订单号
 	 * @param {string} $goods_name 订单名称
 	 * @param {number} $total_amount 付款金额
+	 * @param {int} [$expired_at=0] 过期时间
 	 * @return {string}
-	 * @example $this->getPayUrl($return_url, $page_url, $order_no, $goods_name, $total_amount);
+	 * @example $this->getPayUrl($return_url, $page_url, $order_no, $goods_name, $total_amount, $expired_at);
 	 */
-	public function getPayUrl($return_url, $page_url, $order_no, $goods_name, $total_amount){
+	public function getPayUrl($return_url, $page_url, $order_no, $goods_name, $total_amount, $expired_at = 0){
 		$params = [
 			'service_code'	=> $this->service_code,
 			'sp_no' => $this->config['sp_no'],
@@ -117,6 +114,11 @@ class Baifubao{
 			'version' => $this->version,
 			'sign_method' => $this->sign_method,
 		];
+
+		//交易的超时时间
+		if($expired_at > 0){
+			$params['expire_time'] = date('YmdHis', $expired_at);
+		}
 
 		$params['sign'] = $this->sign($this->getQeuryString($this->arrKsort($params)));
 

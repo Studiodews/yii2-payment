@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2016/1/11
+ * update: 2016/1/12
  * version: 0.0.1
  */
 
@@ -97,10 +97,11 @@ class Alipay{
 	 * @param {number} $total_fee 付款金额
 	 * @param {string} [$body=null] 订单描述
 	 * @param {string} [$show_url=null] 商品展示地址
+	 * @param {string} [$it_b_pay=null] 超时时间
 	 * @return {string}
-	 * @example $this->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url);
+	 * @example $this->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url, $it_b_pay);
 	 */
-	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null){
+	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null, $it_b_pay = null){
 		return $this->buildRequest(array_merge([
 			'seller_id' => $this->config['partner'],
 			'partner' => $this->config['partner'],
@@ -111,6 +112,7 @@ class Alipay{
 			'total_fee' => $total_fee,
 			'body' => $body,
 			'show_url' => $show_url,
+			'it_b_pay' => $it_b_pay,
 		], $this->params));
 	}
 

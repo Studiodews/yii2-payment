@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/5/10
- * update: 2016/1/6
+ * update: 2016/1/12
  * version: 0.0.1
  */
 
@@ -142,10 +142,11 @@ class Unionpay{
 	 * @param {string} $return_url 同步通知地址
 	 * @param {string} $orderId 商户订单号
 	 * @param {number} $txnAmt 交易金额
+	 * @param {int} [$expired_at=0] 过期时间
 	 * @return {string}
-	 * @example $this->getPayUrl($notify_url, $return_url, $orderId, $txnAmt);
+	 * @example $this->getPayUrl($notify_url, $return_url, $orderId, $txnAmt, $expired_at);
 	 */
-	public function getPayUrl($notify_url, $return_url, $orderId, $txnAmt){
+	public function getPayUrl($notify_url, $return_url, $orderId, $txnAmt, $expired_at = 0){
 		$params = [
 			'version' => $this->version,
 			'encoding' => $this->encoding,
@@ -165,6 +166,13 @@ class Unionpay{
 			'currencyCode' => $this->currencyCode,
 			'defaultPayType' => $this->defaultPayType,
 		];
+
+		//设置过期时间
+		if($expired_at > 0){
+			$params['orderTimeout'] = ($expired_at - time()) * 1000;
+			$params['payTimeout'] = date('YmdHis', $expired_at);
+		}
+
 		$params['signature'] = $this->sign($params);
 
 		return $this->createPostForm($this->api . $this->frontTransReq, $params);

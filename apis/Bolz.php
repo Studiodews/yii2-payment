@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/11/17
- * update: 2015/11/20
+ * update: 2016/1/12
  * version: 0.0.1
  */
 
@@ -104,10 +104,11 @@ class Bolz{
 	 * @param {number} $total_fee 付款金额
 	 * @param {string} [$body=null] 订单描述
 	 * @param {string} [$show_url=null] 商品展示地址
+	 * @param {int} [$expired_at=0] 过期时间
 	 * @return {string}
-	 * @example $this->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url);
+	 * @example $this->getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body, $show_url, $expired_at);
 	 */
-	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null){
+	public function getPayUrl($notify_url, $return_url, $out_trade_no, $subject, $total_fee, $body = null, $show_url = null, $expired_at = 0){
 		$params = array_merge([
 			'partner' => $this->config['partner'],
 			'notify_url' => $notify_url,
@@ -119,6 +120,10 @@ class Bolz{
 			'show_url' => $show_url ? : \Yii::$app->request->hostInfo,
 			'spbill_create_ip' => \Yii::$app->request->userIP,
 		], $this->params);
+
+		if($expired_at > 0){
+			$params['time_expire'] = date('Ymd H:i:s', $expired_at);
+		}
 
 		$params['sign'] = $this->sign($params);
 		$params['sign_type'] = $this->sign_type;

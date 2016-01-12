@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/3/28
- * update: 2016/1/7
+ * update: 2016/1/12
  * version: 0.0.1
  */
 
@@ -121,6 +121,10 @@ class Wxpay{
 
 		if(isset($data['description']) && !empty($data['description'])){
 			$params['detail'] = $data['description'];
+		}
+
+		if(isset($data['expired_at']) && !empty($data['expired_at'])){
+			$params['time_expire'] = date('YmdHis', $data['expired_at']);
 		}
 
 		switch($params['trade_type']){
