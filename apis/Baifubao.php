@@ -49,7 +49,7 @@ class Baifubao{
 	public function __construct($config){
 		$this->config = $config;
 
-		$this->api = $this->isMobile() ? 'https://www.baifubao.com/api/0/pay/0/wapdirect/0?' : 'https://www.baifubao.com/api/0/pay/0/direct/0?';
+		$this->api = $this->isMobile() ? 'https://www.baifubao.com/api/0/pay/0/wapdirect?' : 'https://www.baifubao.com/api/0/pay/0/direct?';
 	}
 
 	/**
