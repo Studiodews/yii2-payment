@@ -36,6 +36,9 @@ class Alipay{
 	//配置参数
 	private $config;
 
+	//是否为移动端
+	private $isMobile = false;
+
 	/**
 	 * 构造器
 	 * @method __construct
@@ -48,6 +51,7 @@ class Alipay{
 
 		if($this->isMobile()){
 			$this->params['service'] = 'alipay.wap.create.direct.pay.by.user';
+			$this->isMobile = true;
 		}
 	}
 
