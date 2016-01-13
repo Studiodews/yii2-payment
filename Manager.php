@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2016/1/12
+ * update: 2016/1/13
  * version: 0.0.1
  */
 
@@ -233,10 +233,23 @@ class Manager{
 				case 'bolz':
 					$payUrl = $this->getBolzPayUrl($async, $sync);
 					break;
+				case 'offline':
+					$payUrl = $this->getOfflineUrl();
+					break;
 			}
 		}
 
 		return $payUrl;
+	}
+
+	/**
+	 * 获取线下支付详细地址
+	 * @method getOfflineUrl
+	 * @since 0.0.1
+	 * @return {array}
+	 */
+	private function getOfflineUrl(){
+		return [$this->modes['offline']['detailsRoute'], 'id' => $this->payment->id];
 	}
 
 	/**
@@ -304,7 +317,7 @@ class Manager{
 	 * @since 0.0.1
 	 * @param {string} $async 异步通知地址
 	 * @param {string} $sync 同步通知地址
-	 * @return {string}
+	 * @return {array}
 	 */
 	private function getWxpayPayUrl($async, $sync){
 		$this->payment->url = \Yii::$app->qrcode->create(Wxpay::sdk($this->modes['wxpay'])->createBizpayurl($this->payment->id));
