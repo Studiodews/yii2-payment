@@ -36,7 +36,7 @@ class Alipay{
 	//配置参数
 	private $config;
 
-	//是否为移动端
+	//是否移动端
 	private $isMobile = false;
 
 	/**
