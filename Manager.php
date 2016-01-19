@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2016/1/13
+ * update: 2016/1/19
  * version: 0.0.1
  */
 
@@ -487,6 +487,9 @@ class Manager{
 				}
 			}
 		}else{
+			if($integers == 0){
+				array_push($cny, $numbers[0] . $units_integer[0]);
+			}
 			array_push($cny, '整');
 		}
 
