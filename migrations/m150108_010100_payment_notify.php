@@ -3,9 +3,9 @@
 use yii\db\Schema;
 use yii\db\Migration;
 
-class m150108_010100_payment_notify extends Migration{
+class m150108_010100_payment_notify extends Migration {
 
-	public function up(){
+	public function up() {
 		$tableOptions = 'engine=innodb character set utf8';
 		if($this->db->driverName === 'mysql') {
 			$tableOptions .= ' collate utf8_unicode_ci';
@@ -13,8 +13,8 @@ class m150108_010100_payment_notify extends Migration{
 
 		$this->createTable('{{%payment_notify}}', [
 			'id' => Schema::TYPE_PK . ' comment "通知记录id"',
+			'pid' => Schema::TYPE_STRING . '(50) not null comment "支付单id"',
 			'mode' => Schema::TYPE_STRING . '(50) not null comment "第三方支付类型"',
-			'pid' => Schema::TYPE_BIGINT . ' not null comment "支付单id"',
 			'tid' => Schema::TYPE_STRING . '(50) not null comment "第三方支付端流水号"',
 			'status' => Schema::TYPE_BOOLEAN . ' not null default 0 comment "支付结果: 0失败, 1成功"',
 			'verified' => Schema::TYPE_BOOLEAN . ' not null default 0 comment "验证结果: 0失败, 1成功"',
@@ -23,7 +23,7 @@ class m150108_010100_payment_notify extends Migration{
 		], $tableOptions . ' comment="第三方支付消息通知记录"');
 	}
 
-	public function down(){
+	public function down() {
 		$this->dropTable('{{%payment_notify}}');
 	}
 

@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2016/1/19
+ * update: 2016/3/3
  * version: 0.0.1
  */
 
@@ -23,7 +23,7 @@ use yii\payment\apis\Baifubao;
 use yii\payment\apis\Psbc;
 use yii\payment\apis\Bolz;
 
-class Manager{
+class Manager {
 
 	//支付单id前缀, 最高4位纯数字, 默认1000
 	public $idpre = 1000;
@@ -48,7 +48,7 @@ class Manager{
 	 * @return {string}
 	 * @example \Yii::$app->payment->getOpenId($code);
 	 */
-	public function getOpenId($code){
+	public function getOpenId($code) {
 		return Wxpay::sdk($this->modes['wxpay'])->getOpenId($code);
 	}
 
@@ -60,7 +60,7 @@ class Manager{
 	 * @return {string}
 	 * @example \Yii::$app->payment->getSnsapiUrl($redirect_uri);
 	 */
-	public function getSnsapiUrl($redirect_uri){
+	public function getSnsapiUrl($redirect_uri) {
 		return Wxpay::sdk($this->modes['wxpay'])->getSnsapiUrl($redirect_uri);
 	}
 
@@ -73,13 +73,13 @@ class Manager{
 	 * @return {array}
 	 * @example \Yii::$app->payment->getJsPackage($openid, $notify_url);
 	 */
-	public function getJsPackage($openid, $notify_url){
+	public function getJsPackage($openid, $notify_url) {
 		$wxpayConfig = $this->modes['wxpay'];
 		$wxpay = Wxpay::sdk($wxpayConfig);
 		$prepay = $wxpay->createUnifiedOrder(array_merge($this->payment->toArray(), ['openid' => $openid]), $notify_url, 'JSAPI');
 
 		$package = false;
-		if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS'){
+		if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS') {
 			$this->payment->tid = $prepay['prepay_id'];
 			$this->payment->save();
 			$package = [
@@ -103,14 +103,14 @@ class Manager{
 	 * @return {string}
 	 * @example \Yii::$app->payment->getPackage($notify_url);
 	 */
-	public function getPackage($notify_url){
+	public function getPackage($notify_url) {
 		$prepay = ['return_code' => 'FAIL', 'return_msg' => '签名验证失败'];
 		$post = Wxpay::getXmlPostData();
 		$wxpay = Wxpay::sdk($this->modes['wxpay']);
-		if($wxpay->verifySign($post)){
+		if($wxpay->verifySign($post)) {
 			$payment = Payment::findById($post['product_id']);
 			$prepay = $wxpay->createUnifiedOrder(array_merge($payment->toArray(), $post), $notify_url);
-			if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS'){
+			if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS') {
 				$payment->tid = $prepay['prepay_id'];
 				$payment->save();
 			}
@@ -132,7 +132,7 @@ class Manager{
 	 * @return {none}
 	 * @example \Yii::$app->payment->saveNotify($mode, $pid, $tid, $status, $verified, $data);
 	 */
-	public function saveNotify($mode, $pid, $tid, $status, $verified, $data){
+	public function saveNotify($mode, $pid, $tid, $status, $verified, $data) {
 		$notify = new PaymentNotify;
 		$notify->mode = $mode;
 		$notify->pid = $pid;
@@ -153,9 +153,9 @@ class Manager{
 	 * @return {none}
 	 * @example \Yii::$app->payment->complete($id);
 	 */
-	public function complete($id, $tid){
+	public function complete($id, $tid) {
 		$payment = $this->getPayment($id);
-		if($payment->completed_at > 0){
+		if($payment->completed_at > 0) {
 			return false;
 		}
 		$payment->tid = $tid;
@@ -173,9 +173,9 @@ class Manager{
 	 * @return {boolean}
 	 * @example \Yii::$app->payment->verifySign($mode, $async);
 	 */
-	public function verifySign($mode, $async = false){
+	public function verifySign($mode, $async = false) {
 		$result = false;
-		switch($mode){
+		switch($mode) {
 			case 'wxpay':
 				$result = Wxpay::sdk($this->modes[$mode])->verifySign();
 				break;
@@ -210,11 +210,11 @@ class Manager{
 	 * @return {string}
 	 * @example \Yii::$app->payment->getPayUrl($id, $async, $sync, $hash);
 	 */
-	public function getPayUrl($id, $async, $sync, $hash = null){
+	public function getPayUrl($id, $async, $sync, $hash = null) {
 		$payUrl = null;
 		$payment = $this->getPayment($id);
-		if($this->hashkey === false || $payment->validateData($hash, $this->hashkey)){
-			switch($payment->mode){
+		if($this->hashkey === false || $payment->validateData($hash, $this->hashkey)) {
+			switch($payment->mode) {
 				case 'wxpay':
 					$payUrl = $this->getWxpayPayUrl($async, $sync);
 					break;
@@ -248,7 +248,7 @@ class Manager{
 	 * @since 0.0.1
 	 * @return {array}
 	 */
-	private function getOfflineUrl(){
+	private function getOfflineUrl() {
 		return [$this->modes['offline']['detailsRoute'], 'id' => $this->payment->id];
 	}
 
@@ -260,7 +260,7 @@ class Manager{
 	 * @param {string} $sync 同步通知地址
 	 * @return {string}
 	 */
-	private function getBolzPayUrl($async, $sync){
+	private function getBolzPayUrl($async, $sync) {
 		return Bolz::sdk($this->modes['bolz'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url, $this->payment->expired_at);
 	}
 
@@ -271,7 +271,7 @@ class Manager{
 	 * @param {string} $sync 通知地址
 	 * @return {string}
 	 */
-	private function getPsbcUrl($sync){
+	private function getPsbcUrl($sync) {
 		return Psbc::sdk($this->modes['psbc'])->getPayUrl($sync, $this->payment->id, $this->getYuans($this->payment->amount));
 	}
 
@@ -283,7 +283,7 @@ class Manager{
 	 * @param {string} $sync 同步通知地址
 	 * @return {string}
 	 */
-	private function getBaifubaoUrl($async, $sync){
+	private function getBaifubaoUrl($async, $sync) {
 		return Baifubao::sdk($this->modes['baifubao'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->payment->amount, $this->payment->expired_at);
 	}
 
@@ -295,7 +295,7 @@ class Manager{
 	 * @param {string} $sync 同步通知地址
 	 * @return {string}
 	 */
-	private function getUnionPayUrl($async, $sync){
+	private function getUnionPayUrl($async, $sync) {
 		return Unionpay::sdk($this->modes['unionpay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->amount, $this->payment->expired_at);
 	}
 
@@ -307,7 +307,7 @@ class Manager{
 	 * @param {string} $sync 同步通知地址
 	 * @return {string}
 	 */
-	private function getAlipayPayUrl($async, $sync){
+	private function getAlipayPayUrl($async, $sync) {
 		return Alipay::sdk($this->modes['alipay'])->getPayUrl($async, $sync, $this->payment->id, $this->payment->title, $this->getYuans($this->payment->amount), $this->payment->description, $this->payment->url, $this->payment->expired_at);
 	}
 
@@ -319,7 +319,7 @@ class Manager{
 	 * @param {string} $sync 同步通知地址
 	 * @return {array}
 	 */
-	private function getWxpayPayUrl($async, $sync){
+	private function getWxpayPayUrl($async, $sync) {
 		$this->payment->url = \Yii::$app->qrcode->create(Wxpay::sdk($this->modes['wxpay'])->createBizpayurl($this->payment->id));
 		$this->payment->save();
 
@@ -333,8 +333,8 @@ class Manager{
 	 * @param {number} [$id=null] 支付单id
 	 * @return {string}
 	 */
-	public function getPaymentHash($id = null){
-		if($id){
+	public function getPaymentHash($id = null) {
+		if($id) {
 			$this->getPayment($id);
 		}
 
@@ -347,7 +347,7 @@ class Manager{
 	 * @since 0.0.1
 	 * @return {number}
 	 */
-	public function getId(){
+	public function getId() {
 		return $this->payment->id;
 	}
 
@@ -366,17 +366,17 @@ class Manager{
 	 * @return {number}
 	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $title, $expired_at, $type, $description, $url);
 	 */
-	public function create($oid, $amount, $mode, $title, $expired_at = 0, $type = 1, $description = null, $url = null){
-		if(empty($oid)){
+	public function create($oid, $amount, $mode, $title, $expired_at = 0, $type = 1, $description = null, $url = null) {
+		if(empty($oid)) {
 			throw new ErrorException('Order id must be requied');
 		}
-		if($amount <= 0){
+		if($amount <= 0) {
 			throw new ErrorException('Payment amount must be a positive integer');
 		}
-		if(!isset($this->modes[$mode])){
+		if(!isset($this->modes[$mode])) {
 			throw new ErrorException('Unsupported payment mode');
 		}
-		if($this->disabledMode($mode)){
+		if($this->disabledMode($mode)) {
 			throw new ErrorException('Payment mode has been disabled');
 		}
 
@@ -396,14 +396,17 @@ class Manager{
 	}
 
 	/**
-	 * 创建支付单id
+	 * 创建id
 	 * @method createId
 	 * @since 0.0.1
-	 * @param {number|string} [$idpre=null] 支付单前缀
-	 * @return {number}
+	 * @param {string} [$idpre] 前缀
+	 * @param {boolean} [$timestamp=false] true显示时间戳, false(默认)以时间格式yyyymmddhhiiss显示
+	 * @return {string}
 	 */
-	public function createId($idpre = null){
-		return (empty($idpre) ? $this->idpre : $idpre) . floor(microtime(true) * 100) . mt_rand(100, 999);
+	public function createId($idpre = null, $timestamp = false) {
+		list($msec, $sec) = explode(' ', microtime());
+
+		return (empty($idpre) ? $this->idpre : $idpre) . ($timestamp ? $sec : date('YmdHis', $sec)) . substr($msec, 2, 6) . str_pad(mt_rand(0, 9999), 4, 0, STR_PAD_LEFT);
 	}
 
 	/**
@@ -414,7 +417,7 @@ class Manager{
 	 * @return {boolean}
 	 * @example \Yii::$app->payment->disabledMode($mode);
 	 */
-	public function disabledMode($mode){
+	public function disabledMode($mode) {
 		$mode = $this->modes[$mode];
 
 		return isset($mode['disabled']) && $mode['disabled'];
@@ -428,7 +431,7 @@ class Manager{
 	 * @return {string}
 	 * @example \Yii::$app->payment->getMode($id);
 	 */
-	public function getMode($id){
+	public function getMode($id) {
 		return $this->getPayment($id)->mode;
 	}
 
@@ -439,10 +442,10 @@ class Manager{
 	 * @param {number} $id 支付单id
 	 * @return {object}
 	 */
-	private function getPayment($id){
-		if($this->payment === false || $this->payment->id != $id){
+	private function getPayment($id) {
+		if($this->payment === false || $this->payment->id != $id) {
 			$this->payment = Payment::findOne($id);
-			if(!$this->payment){
+			if(!$this->payment) {
 				throw new ErrorException('No record of the transaction');
 			}
 		}
@@ -458,8 +461,8 @@ class Manager{
 	 * @return {string}
 	 * @example \Yii::$app->payment->getCapitalCny($price);
 	 */
-	public function getCapitalCny($price){
-		if($price > 999999999999999){
+	public function getCapitalCny($price) {
+		if($price > 999999999999999) {
 			throw new ErrorException('Amount out of range');
 		}
 
@@ -470,24 +473,24 @@ class Manager{
 		$_n = 0;
 
 		list($integers, $decimals) = explode('.', number_format($price, 2, '.', ''));
-		foreach(array_reverse(str_split($integers)) as $i => $n){
-			if($i > 0 && !($i % 4) && in_array($cny[0], $units_integer)){
+		foreach(array_reverse(str_split($integers)) as $i => $n) {
+			if($i > 0 && !($i % 4) && in_array($cny[0], $units_integer)) {
 				array_shift($cny);
 			}
 			$_cny = $n > 0 || (!($i % 4) && $integers) ? ($n > 0 ? $n : null) . $units_integer[$i] : (!$_n && !$n ? null : $n);
-			if($_cny !== null){
+			if($_cny !== null) {
 				array_unshift($cny, $_cny);
 			}
 			$_n = $n;
 		}
-		if($decimals > 0){
-			foreach(str_split($decimals) as $i => $n){
-				if($n > 0){
+		if($decimals > 0) {
+			foreach(str_split($decimals) as $i => $n) {
+				if($n > 0) {
 					array_push($cny, $n . $units_decimal[$i]);
 				}
 			}
-		}else{
-			if($integers == 0){
+		} else {
+			if($integers == 0) {
 				array_push($cny, $numbers[0] . $units_integer[0]);
 			}
 			array_push($cny, '整');
@@ -508,7 +511,7 @@ class Manager{
 	 * @return {number|float}
 	 * @example \Yii::$app->payment->getYuans($cents, $float, $decimals, $separator, $decimalpoint);
 	 */
-	public function getYuans($cents, $float = false, $decimals = 2, $separator = '', $decimalpoint = '.'){
+	public function getYuans($cents, $float = false, $decimals = 2, $separator = '', $decimalpoint = '.') {
 		$yuans = $cents / 100;
 
 		return $float ? number_format($yuans, $decimals, $decimalpoint, $separator) : $yuans;

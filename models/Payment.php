@@ -7,15 +7,13 @@ use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use yii\web\NotFoundHttpException;
 
-class Payment extends ActiveRecord{
+class Payment extends ActiveRecord {
 
-	private $mac_hach = 'sha256';
-
-	public static function tableName(){
+	public static function tableName() {
 		return '{{%payment}}';
 	}
 
-	public function behaviors(){
+	public function behaviors() {
 		return [
 			TimestampBehavior::className(),
 		];
@@ -29,7 +27,7 @@ class Payment extends ActiveRecord{
 	 * @return {boolean}
 	 * @example $this->validateData($hash, $key);
 	 */
-	public function validateData($hash, $key){
+	public function validateData($hash, $key) {
 		return Yii::$app->security->compareString($hash, $this->generateDataHash($key));
 	}
 
@@ -40,7 +38,7 @@ class Payment extends ActiveRecord{
 	 * @return {string}
 	 * @example $this->generateDataHash($key);
 	 */
-	public function generateDataHash($key){
+	public function generateDataHash($key) {
 		return hash_hmac('sha256', $this->getDataString(), $key, false);
 	}
 
@@ -49,7 +47,7 @@ class Payment extends ActiveRecord{
 	 * @method getDataString
 	 * @return {string}
 	 */
-	private function getDataString(){
+	private function getDataString() {
 		return $this->id . $this->oid . $this->amount . $this->mode;
 	}
 
@@ -61,12 +59,12 @@ class Payment extends ActiveRecord{
 	 * @return {object}
 	 * @example static::findById($id, $toArray);
 	 */
-    public static function findById($id, $toArray = false){
+    public static function findById($id, $toArray = false) {
 		$data = static::findOne($id);
-		if(!$data){
+		if(!$data) {
 			throw new NotFoundHttpException(\Yii::t('common', 'Data query failed'));
 		}
-		if($toArray){
+		if($toArray) {
 			$data = $data->toArray();
 		}
 

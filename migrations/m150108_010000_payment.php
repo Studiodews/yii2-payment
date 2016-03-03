@@ -3,16 +3,16 @@
 use yii\db\Schema;
 use yii\db\Migration;
 
-class m150108_010000_payment extends Migration{
+class m150108_010000_payment extends Migration {
 
-	public function up(){
+	public function up() {
 		$tableOptions = 'engine=innodb character set utf8';
 		if($this->db->driverName === 'mysql') {
 			$tableOptions .= ' collate utf8_unicode_ci';
 		}
 
 		$this->createTable('{{%payment}}', [
-			'id' => Schema::TYPE_BIGINT . ' not null primary key comment "支付单id"',
+			'id' => Schema::TYPE_STRING . '(50) primary key comment "id"',
 			'oid' => Schema::TYPE_TEXT . ' not null comment "订单id, 多个以英文逗号隔开"',
 			'type' => Schema::TYPE_BOOLEAN . ' not null default 1 comment "支付单类型: 1普通支付单"',
 			'title' => Schema::TYPE_STRING . ' not null comment "订单名称"',
@@ -28,7 +28,7 @@ class m150108_010000_payment extends Migration{
 		], $tableOptions . ' comment="支付单"');
 	}
 
-	public function down(){
+	public function down() {
 		$this->dropTable('{{%payment}}');
 	}
 
