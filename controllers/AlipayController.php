@@ -61,7 +61,7 @@ class AlipayController extends Controller{
 	}
 
 	private function checkTradeStatus($trade_status){
-		return $trade_status == 'TRADE_FINISHED' || $trade_status == 'TRADE_SUCCESS';
+		return $trade_status == 'TRADE_SUCCESS' || $trade_status == 'TRADE_FINISHED';
 	}
 
 }
