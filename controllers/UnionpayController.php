@@ -49,7 +49,7 @@ class UnionpayController extends Controller{
 
 	public function actionSync(){
 		if(!$this->module->manager->verifySign($this->mode)){
-			return '验签失败';
+			return false;
 		}
 
 		$request = \Yii::$app->request;
@@ -57,7 +57,7 @@ class UnionpayController extends Controller{
 			return $this->module->syncRoute ? $this->redirect([$this->module->syncRoute, 'id' => $request->post('orderId')]) : '付款成功';
 		}
 
-		return '验签成功';
+		return true;
 	}
 
 	private function checkTradeStatus($respCode, $respMsg){
