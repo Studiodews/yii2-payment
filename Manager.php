@@ -5,7 +5,7 @@
  * https://github.com/xiewulong/yii2-payment
  * https://raw.githubusercontent.com/xiewulong/yii2-payment/master/LICENSE
  * create: 2015/1/10
- * update: 2016/3/3
+ * update: 2016/10/10
  * version: 0.0.1
  */
 
@@ -80,13 +80,13 @@ class Manager {
 
 		$package = false;
 		if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS') {
-			$this->payment->tid = $prepay['prepay_id'];
+			$this->payment->trade_id = $prepay['prepay_id'];
 			$this->payment->save();
 			$package = [
 				'appId' => $wxpayConfig['appid'],
 				'timeStamp' => strval(time()),
 				'nonceStr' => md5(mt_rand()),
-				'package' => 'prepay_id=' . $this->payment->tid,
+				'package' => 'prepay_id=' . $this->payment->trade_id,
 				'signType' => 'MD5',
 			];
 			$package['paySign'] = $wxpay->sign($package);
@@ -111,7 +111,7 @@ class Manager {
 			$payment = Payment::findById($post['product_id']);
 			$prepay = $wxpay->createUnifiedOrder(array_merge($payment->toArray(), $post), $notify_url);
 			if($prepay['return_code'] == 'SUCCESS' && $prepay['result_code'] == 'SUCCESS') {
-				$payment->tid = $prepay['prepay_id'];
+				$payment->trade_id = $prepay['prepay_id'];
 				$payment->save();
 			}
 		}
@@ -124,19 +124,19 @@ class Manager {
 	 * @method saveNotify
 	 * @since 0.0.1
 	 * @param {string} $mode 第三方支付端流水号
-	 * @param {number} $pid 支付单id
-	 * @param {number} $tid 第三方支付端流水号
+	 * @param {number} $payment_id 支付单id
+	 * @param {number} $trade_id 第三方支付端流水号
 	 * @param {boolean} $status 支付结果状态
 	 * @param {boolean} $verified 消息验证结果
 	 * @param {string} $data 消息通知数据
 	 * @return {none}
-	 * @example \Yii::$app->payment->saveNotify($mode, $pid, $tid, $status, $verified, $data);
+	 * @example \Yii::$app->payment->saveNotify($mode, $payment_id, $trade_id, $status, $verified, $data);
 	 */
-	public function saveNotify($mode, $pid, $tid, $status, $verified, $data) {
+	public function saveNotify($mode, $payment_id, $trade_id, $status, $verified, $data) {
 		$notify = new PaymentNotify;
 		$notify->mode = $mode;
-		$notify->pid = $pid;
-		$notify->tid = $tid;
+		$notify->payment_id = $payment_id;
+		$notify->trade_id = $trade_id;
 		$notify->status = $status;
 		$notify->verified = $verified ? 1 : 0;
 		$notify->data = Json::encode($data);
@@ -149,18 +149,18 @@ class Manager {
 	 * @method complete
 	 * @since 0.0.1
 	 * @param {number} $id 支付单id
-	 * @param {string} $tid 第三方支付端流水号
+	 * @param {string} $trade_id 第三方支付端流水号
 	 * @return {none}
 	 * @example \Yii::$app->payment->complete($id);
 	 */
-	public function complete($id, $tid) {
+	public function complete($id, $trade_id) {
 		$payment = $this->getPayment($id);
 		if($payment->completed_at > 0) {
 			return false;
 		}
-		$payment->tid = $tid;
+		$payment->trade_id = $trade_id;
 		$payment->completed_at = time();
-		
+
 		return $payment->save();
 	}
 
@@ -355,7 +355,7 @@ class Manager {
 	 * 创建交易记录
 	 * @method create
 	 * @since 0.0.1
-	 * @param {number} $oid 订单id
+	 * @param {number} $order_id 订单id
 	 * @param {number} $amount 交易总额(分)
 	 * @param {string} $mode 支付方式
 	 * @param {string} $title 订单名称
@@ -364,10 +364,10 @@ class Manager {
 	 * @param {string} [$description=null] 描述信息
 	 * @param {string} [$url=null] 商品展示url
 	 * @return {number}
-	 * @example \Yii::$app->payment->create($oid, $amount, $mode, $title, $expired_at, $type, $description, $url);
+	 * @example \Yii::$app->payment->create($order_id, $amount, $mode, $title, $expired_at, $type, $description, $url);
 	 */
-	public function create($oid, $amount, $mode, $title, $expired_at = 0, $type = 1, $description = null, $url = null) {
-		if(empty($oid)) {
+	public function create($order_id, $amount, $mode, $title, $expired_at = 0, $type = 1, $description = null, $url = null) {
+		if(empty($order_id)) {
 			throw new ErrorException('Order id must be requied');
 		}
 		if($amount <= 0) {
@@ -382,7 +382,7 @@ class Manager {
 
 		$this->payment = new Payment;
 		$this->payment->id = $this->createId();
-		$this->payment->oid = $oid;
+		$this->payment->order_id = $order_id;
 		$this->payment->type = $type;
 		$this->payment->title = $title ? $title : \Yii::$app->name;
 		$this->payment->amount = $amount;

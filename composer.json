@@ -14,11 +14,12 @@
 			"name": "xiewulong",
 			"email": "xiewulong@vip.qq.com"
 		}
-    ],
-    "require": {
-        "yiisoft/yii2": "*",
-        "xiewulong/yii2-qrcode": "*"
-    },
+	],
+	"require": {
+		"yiisoft/yii2": "*",
+		"xiewulong/yii2-components": "*",
+		"xiewulong/yii2-qrcode": "*"
+	},
 	"autoload": {
 		"psr-4": {"yii\\payment\\": ""}
 	}

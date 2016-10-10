@@ -30,17 +30,17 @@ class PsbcController extends Controller{
 
 		$plain = json_decode('{"' . str_replace('=', '":"', str_replace('|', '","', trim($_POST['Plain'], '|'))) . '"}');
 		$id = $plain->TermSsn;
-		$tid = $plain->AcqSsn;
+		$trade_id = $plain->AcqSsn;
 		$status = $this->checkTradeStatus($plain->RespCode) ? 1 : 0;
 		$manager = $this->module->manager;
 		$verified = $manager->verifySign($this->mode);
-		$manager->saveNotify($this->mode, $id, $tid, $status, $verified, $_POST);
+		$manager->saveNotify($this->mode, $id, $trade_id, $status, $verified, $_POST);
 
 		if(!$verified){
 			return false;
 		}
 
-		if($status && $manager->complete($id, $tid) && $asyncClass = $this->module->asyncClass){
+		if($status && $manager->complete($id, $trade_id) && $asyncClass = $this->module->asyncClass){
 			$asyncClass::paied($id);
 		}
 

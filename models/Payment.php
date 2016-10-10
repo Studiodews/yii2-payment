@@ -48,7 +48,7 @@ class Payment extends ActiveRecord {
 	 * @return {string}
 	 */
 	private function getDataString() {
-		return $this->id . $this->oid . $this->amount . $this->mode;
+		return $this->id . $this->order_id . $this->amount . $this->mode;
 	}
 
 	/**
